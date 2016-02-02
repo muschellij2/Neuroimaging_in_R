@@ -1,6 +1,6 @@
 ---
 title: "Processing Neuroimaging Data in R: Capabilities"
-author: "John Muschelli"
+author: "John Muschelli http://johnmuschelli.com/Neuroimaging_in_R"
 date: "February 19, 2015"
 bibliography: "index.bib"
 output:
@@ -457,6 +457,7 @@ ANTsR
 - GitHub and Neuroconductor
 
 ## Viz
+
 
 <div class="papaya" data-params="params"></div>
 
