@@ -53,6 +53,26 @@ knit_hooks$set(document = hook2)
 7. Image operations
 8. Complex Modeling (yeah - it's R)
 
+
+## Data used from NITRC
+
+Multi-modal dataset from HAMMER, (NIfTI conversion from ANALYZE).  
+
+- Data from https://www.nitrc.org/frs/?group_id=187 (testing folder in White_Matter_Lesion_Segmentation_Testdata.zip)
+
+- 4 MRI sequences: **T1-weighted**, T2-weighted, PD, **FLAIR**
+
+```{r makefiles, echo=FALSE}
+files = c(t1 = "T1.nii.gz",
+          t2 = "T2.nii.gz",
+          pd = "PD.nii.gz",
+          flair = "FLAIR.nii.gz")
+```
+
+```{r showfiles, dependson = "makefiles"}
+files
+```
+
 ## Starting from Raw Data
 
 - `oro.dicom` - read/write DICOM data, the nifti object
@@ -75,24 +95,6 @@ Medical Imaging Task View
 - `AnalyzeFMRI` - fMRI analysis (last updated in 2013)
 - `spm12r` package calls out MATLAB using SPM 
 
-## Data used from NITRC
-
-Multi-modal dataset from HAMMER, (NIfTI conversion from ANALYZE).  
-
-- Data from https://www.nitrc.org/frs/?group_id=187 (testing folder in White_Matter_Lesion_Segmentation_Testdata.zip)
-
-- 4 MRI sequences: **T1-weighted**, T2-weighted, PD, **FLAIR**
-
-```{r makefiles, echo=FALSE}
-files = c(t1 = "T1.nii.gz",
-          t2 = "T2.nii.gz",
-          pd = "PD.nii.gz",
-          flair = "FLAIR.nii.gz")
-```
-
-```{r showfiles, dependson = "makefiles"}
-files
-```
 
 
 ## Basics: Read in the Files!

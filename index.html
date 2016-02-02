@@ -115,6 +115,19 @@
 <li>Complex Modeling (yeah - it&#39;s R)</li>
 </ol>
 
+</article></slide><slide class=''><hgroup><h2>Data used from NITRC</h2></hgroup><article  id="data-used-from-nitrc">
+
+<p>Multi-modal dataset from HAMMER, (NIfTI conversion from ANALYZE).</p>
+
+<ul>
+<li><p>Data from <a href='https://www.nitrc.org/frs/?group_id=187' title=''>https://www.nitrc.org/frs/?group_id=187</a> (testing folder in White_Matter_Lesion_Segmentation_Testdata.zip)</p></li>
+<li><p>4 MRI sequences: <strong>T1-weighted</strong>, T2-weighted, PD, <strong>FLAIR</strong></p></li>
+</ul>
+
+<pre class = 'prettyprint lang-r'>files
+            t1             t2             pd          flair 
+   &quot;T1.nii.gz&quot;    &quot;T2.nii.gz&quot;    &quot;PD.nii.gz&quot; &quot;FLAIR.nii.gz&quot; </pre>
+
 </article></slide><slide class=''><hgroup><h2>Starting from Raw Data</h2></hgroup><article  id="starting-from-raw-data">
 
 <ul>
@@ -145,19 +158,6 @@
 <li><code>AnalyzeFMRI</code> - fMRI analysis (last updated in 2013)</li>
 <li><p><code>spm12r</code> package calls out MATLAB using SPM</p></li>
 </ul>
-
-</article></slide><slide class=''><hgroup><h2>Data used from NITRC</h2></hgroup><article  id="data-used-from-nitrc">
-
-<p>Multi-modal dataset from HAMMER, (NIfTI conversion from ANALYZE).</p>
-
-<ul>
-<li><p>Data from <a href='https://www.nitrc.org/frs/?group_id=187' title=''>https://www.nitrc.org/frs/?group_id=187</a> (testing folder in White_Matter_Lesion_Segmentation_Testdata.zip)</p></li>
-<li><p>4 MRI sequences: <strong>T1-weighted</strong>, T2-weighted, PD, <strong>FLAIR</strong></p></li>
-</ul>
-
-<pre class = 'prettyprint lang-r'>files
-            t1             t2             pd          flair 
-   &quot;T1.nii.gz&quot;    &quot;T2.nii.gz&quot;    &quot;PD.nii.gz&quot; &quot;FLAIR.nii.gz&quot; </pre>
 
 </article></slide><slide class=''><hgroup><h2>Basics: Read in the Files!</h2></hgroup><article  id="basics-read-in-the-files">
 
