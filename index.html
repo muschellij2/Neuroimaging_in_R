@@ -348,11 +348,11 @@ ss_t1_to_mni = registration(
 
 <pre class = 'prettyprint lang-r'>outfiles = gsub(&quot;[.]nii&quot;, &#39;_process.nii&#39;, files)
 preprocess_mri_across(
-  baseline_files = files[c(&quot;base_t1&quot;, &quot;base_t2&quot;, &quot;base_pd&quot;, &quot;base_flair&quot;)],
-  followup_files = files[c(&quot;f_t1&quot;, &quot;f_t2&quot;, &quot;f_pd&quot;, &quot;f_flair&quot;)],
-  baseline_outfiles = outfiles[c(&quot;base_t1&quot;, &quot;base_t2&quot;, &quot;base_pd&quot;, &quot;base_flair&quot;)],
-  followup_outfiles = outfiles[c(&quot;f_t1&quot;, &quot;f_t2&quot;, &quot;f_pd&quot;, &quot;f_flair&quot;)],
-  maskfile = &quot;Brain_Mask.nii.gz&quot;)</pre>
+  baseline_files, followup_files,
+  baseline_outfiles, followup_outfiles,
+  maskfile)</pre>
+
+<p><img src="Reg_Figure_Option1_short_across.png" style="width:80%"></p>
 
 </article></slide><slide class=''><hgroup><h2>Tissue-Class Segmentation</h2></hgroup><article  id="tissue-class-segmentation">
 
@@ -443,6 +443,7 @@ FSLDIR=&#39;/usr/local/fsl/&#39;; export FSLDIR; sh &quot;${FSLDIR}/etc/fslconf/
 <li>Whole brain z-scoring</li>
 <li>Histogram matching</li>
 <li>General standardization methods</li>
+<li>RAVEL (talk to Taki)</li>
 </ul>
 
 </article></slide><slide class=''><hgroup><h2>Overview</h2></hgroup><article  id="overview">

@@ -347,12 +347,13 @@ proc_images = preprocess_mri_within(
 ```{r preproc_across, eval=FALSE}
 outfiles = gsub("[.]nii", '_process.nii', files)
 preprocess_mri_across(
-  baseline_files = files[c("base_t1", "base_t2", "base_pd", "base_flair")],
-  followup_files = files[c("f_t1", "f_t2", "f_pd", "f_flair")],
-  baseline_outfiles = outfiles[c("base_t1", "base_t2", "base_pd", "base_flair")],
-  followup_outfiles = outfiles[c("f_t1", "f_t2", "f_pd", "f_flair")],
-  maskfile = "Brain_Mask.nii.gz")
+  baseline_files, followup_files,
+  baseline_outfiles, followup_outfiles,
+  maskfile)
 ```
+
+<img src="Reg_Figure_Option1_short_across.png" style="width:80%">
+
 
 
 ## Tissue-Class Segmentation
@@ -446,7 +447,8 @@ ANTsR
 - Whole brain z-scoring 
 - Histogram matching 
 - General standardization methods 
- 
+- RAVEL (talk to Taki)
+
 ## Overview
 
 - Many methods are being developed for processing neuroimaging in R
@@ -459,7 +461,6 @@ ANTsR
 - GitHub and Neuroconductor
 
 ## Interactive Visualization using papayar
-
 
 <div class="papaya" data-params="params"></div>
 
