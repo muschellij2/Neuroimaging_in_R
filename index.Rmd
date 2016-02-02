@@ -253,7 +253,7 @@ ants_reg_flair$fwdtransforms = output
 
 ## Rigid-Body Registration Results
 
-```{r double_ortho, echo = FALSE, fig.width=8, fig.height=4}
+```{r double_ortho, echo = FALSE, fig.width=8, fig.height=6}
 dd = dropEmptyImageDimensions(n4_t1 > 0,
                               other.imgs = list(n4 = n4_t1, flair = ants_reg_flair$outfile))$other.imgs
 dd = lapply(dd, robust_window, probs = c(0, .99))
