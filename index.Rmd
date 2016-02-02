@@ -229,8 +229,7 @@ fslr
 
 ## Rigid-Body Registration
 
-- `registration` from `extrantsr` is a general function to do linear/non-linear registration
-- uses `antsRegistration`
+- `registration` from `extrantsr` is a general function to do linear/non-linear registration, using `antsRegistration`
 
 ```{r reg_flair, include= FALSE}
 reg_flair = flirt(infile = files['flair'], reffile = n4_t1, dof = 6)
@@ -248,6 +247,9 @@ output = "reg0GenericAffine.mat"
 file.copy(ants_reg_flair$fwdtransforms, output, overwrite = TRUE)
 ants_reg_flair$fwdtransforms = output
 ```
+
+<img src="Reg_Figure_Option1_short_within2.png" style="width:50%">
+
 
 ## Rigid-Body Registration Results
 

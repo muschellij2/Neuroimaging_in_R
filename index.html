@@ -284,14 +284,15 @@ image(cropped, z = floor(dim(cropped)[3]/2), plot.type = &quot;single&quot;)</pr
 </article></slide><slide class=''><hgroup><h2>Rigid-Body Registration</h2></hgroup><article  id="rigid-body-registration-1">
 
 <ul>
-<li><code>registration</code> from <code>extrantsr</code> is a general function to do linear/non-linear registration</li>
-<li>uses <code>antsRegistration</code></li>
+<li><code>registration</code> from <code>extrantsr</code> is a general function to do linear/non-linear registration, using <code>antsRegistration</code></li>
 </ul>
 
 <pre class = 'prettyprint lang-r'>ants_reg_flair = registration(
   filename = files[&quot;flair&quot;], 
   template.file = n4_t1, 
   typeofTransform = &quot;Rigid&quot;)</pre>
+
+<p><img src="Reg_Figure_Option1_short_within2.png" style="width:50%"></p>
 
 </article></slide><slide class=''><hgroup><h2>Rigid-Body Registration Results</h2></hgroup><article  id="rigid-body-registration-results">
 
