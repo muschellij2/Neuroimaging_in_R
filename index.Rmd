@@ -6,11 +6,15 @@ bibliography: "index.bib"
 output:
   ioslides_presentation:
     self_contained: false
+    includes:
+      in_header: header.html
     css: john.css
     fig_width: 5
     fig_height: 5
   slidy_presentation:
     self_contained: false
+    includes:
+      in_header: header.html
     css: john.css
     fig_width: 5
     fig_height: 5
@@ -453,14 +457,6 @@ ANTsR
 - GitHub and Neuroconductor
 
 ## Viz
-<link rel="stylesheet" type="text/css" href="papaya.css?version=0.8&build=979" />
-  <script type="text/javascript" src="papaya.js?version=0.8&build=979">
-    
-  </script>
-    <script type="text/javascript"> 
-      var params = []; 
-      params["images"] = ["T1.nii.gz"]; 
-      </script>  
 
 <div class="papaya" data-params="params"></div>
 
