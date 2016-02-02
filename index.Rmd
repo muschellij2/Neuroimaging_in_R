@@ -291,7 +291,7 @@ ss_t1_to_mni = registration(
 
 
 ## Non-linear Registration Results
-```{r ants_reg_syn_ers, results='hide', message = FALSE, dependson="ants_reg_syn", fig.width=8, fig.height=4, echo = FALSE}
+```{r ants_reg_syn_ers, results='hide', message = FALSE, dependson="ants_reg_syn", fig.width=8, fig.height=6, echo = FALSE}
 outfile = mask_img(ss_t1_to_mni$outfile, template.mask)
 double_ortho(template.file, outfile)
 ```
@@ -450,9 +450,9 @@ ANTsR
     - NITRC isn't exactly what we want
 - GitHub and Neuroconductor
 
+## Viz
+<div class="papaya" data-params="params"></div>
+
 ## Bibliography
 
-```{r}
-
-```
 
