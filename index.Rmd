@@ -456,7 +456,7 @@ ANTsR
     - NITRC isn't exactly what we want
 - GitHub and Neuroconductor
 
-## Viz
+## Interactive Visualization using papayar
 
 
 <div class="papaya" data-params="params"></div>
