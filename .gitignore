@@ -11,6 +11,10 @@
 .Rproj.user/
 
 *Warp.nii.gz
+T2.nii.gz
+FLAIR*.nii.gz
+PD.nii.gz
+Brain_Mask.nii.gz
 
 White_Matter_Lesion_Segmentation_Testdata.zip
 SS_Image.nii.gz

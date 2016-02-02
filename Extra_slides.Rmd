@@ -1,0 +1,35 @@
+
+
+## Combining Registrations
+```{r ants_reg_syn_1interp, results='hide', message = FALSE}
+reg_flair_to_mni_1interp = ants_apply_transforms(
+  fixed = template.file, 
+  moving = files["flair"], # Raw FLAIR
+  transformlist = c(ants_reg_flair$fwdtransforms,
+                    ss_t1_to_mni$fwdtransforms),
+  interpolator = "Linear")
+```
+
+## Non-linear Registration
+```{r onestep, results='hide', message = FALSE}
+tfile = "FLAIR2.nii.gz"
+reg_flair_to_mni_1interp_1step = registration(
+  filename = ss_t1, 
+  template.file = template.file, 
+  typeofTransform = "SyN", 
+  other.files = files['flair'],
+  other.outfiles = tfile,
+  other.init = ants_reg_flair$fwdtransforms)
+```
+
+## Difference in Interpolations 
+```{r interp_show, message = FALSE}
+rat2 = abs((reg_flair_to_mni_1interp - reg_flair_to_mni) / (reg_flair_to_mni_1interp +  reg_flair_to_mni)) 
+rat2 = finite_img(rat2)
+ortho2(template.file, rat2, col.y = alpha(hotmetal(), 0.5))
+```
+
+## Difference in Interpolations Registrations
+```{r interp_show2, message = FALSE}
+double_ortho(reg_flair_to_mni_1interp, reg_flair_to_mni)
+```

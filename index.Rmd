@@ -46,6 +46,14 @@ knit_hooks$set(document = hook2)
 6. Tissue-Class Segmentation
 7. Image operations
 
+## Starting from Raw Data
+
+- `oro.dicom` - read/write DICOM data, the nifti object
+    - Pure R implementation
+- `dcm2niir` - uses `dcm2nii` from Chris Rorden
+    - Can handle Par/Rec and many scanner types
+- `matlabr` - could use `dicomread` matlab code and excecute through R
+
 
 ## Introduction: Packages
 Medical Imaging Task View
@@ -58,6 +66,7 @@ Medical Imaging Task View
 
 - `fmri` - post-processing analysis: linear models and p-value smoothing
 - `AnalyzeFMRI` - fMRI analysis (last updated in 2013)
+- `spm12r` package calls out MATLAB using SPM 
 
 ## Data used from NITRC
 
@@ -65,7 +74,7 @@ Multi-modal dataset from HAMMER, (NIfTI conversion from ANALYZE).
 
 - Data from https://www.nitrc.org/frs/?group_id=187 (testing folder in White_Matter_Lesion_Segmentation_Testdata.zip)
 
-- 4 MRI sequences: *T1-weighted*, T2, PD, *FLAIR*
+- 4 MRI sequences: **T1-weighted**, T2-weighted, PD, **FLAIR**
 
 ```{r makefiles, echo=FALSE}
 files = c(t1 = "T1.nii.gz",
@@ -90,33 +99,32 @@ base_t1 = readnii(files["t1"])
 - like an array
 - ANTsR uses pointers (faster), but not as intuitive
 
-## Quick Plots
+## Simple Visualization: Orthographic View
 
-```{r ortho, message=FALSE}
+```{r ortho, message=FALSE, fig.height = 4, fig.width= 6}
 library(fslr)
 fslr::ortho2(base_t1)
 ```
 
-## Quick Plots: Overlays
+## Simple Visualization: Orthographic Overlays
 
-```{r ortho_overlay_noalpha, message=FALSE}
+```{r ortho_overlay_noalpha, message=FALSE, fig.height = 4, fig.width= 6}
 over_50 = mask_img(base_t1, base_t1 > 40); ortho2(base_t1, over_50)
 ```
 
-## Visualization: Image Slices
+## Simple Visualization: Image Slices
 
 ```{r image, message=FALSE}
 image(base_t1, z = 55, plot.type = "single")
 ```
 
 
-## Quick Plots: Overlays
+## Simple Visualization: Slice Overlays
 
 ```{r overlay, message=FALSE}
 over_50[over_50 <= 0] = NA; over_50 = cal_img(over_50)
 overlay(base_t1, over_50, z = 55, plot.type = "single")
 ```
-
 
 
 ## Bias Field Correction
@@ -136,10 +144,8 @@ fslr: Uses method by @sled1998nonparametric (slow)
 bc_t1 = fsl_biascorrect(file = base_t1)
 ```
 
-
-
 ## Bias Field Correction: Results
-```{r bias}
+```{r bias, fig.height = 4, fig.width= 6}
 ratio = finite_img(n4_t1 / base_t1)
 ortho2(n4_t1, ratio, col.y = alpha(hotmetal(), 0.5))
 ```
@@ -150,21 +156,21 @@ ortho2(n4_t1, ratio, col.y = alpha(hotmetal(), 0.5))
 ```{r bet}
 ss_t1 = fslbet(n4_t1, outfile = "SS_Image")
 ```
-```{r plotbet, echo=FALSE, dependson = "bet"}
+```{r plotbet, echo=FALSE, dependson = "bet", fig.height = 4, fig.width= 6}
 ortho2(ss_t1)
 ```
 
 
 ## Overlaying Skull Stripped mask
 
-```{r ortho_overlay, message=FALSE, dependson = "bet"}
+```{r ortho_overlay, message=FALSE, dependson = "bet", fig.height = 3.5, fig.width= 6}
 mask = ss_t1 > 0
 ortho2(base_t1, y = mask, col.y = alpha("red", 0.5))
 ```
 
 ## Visualization: Cropped Image Slices
 
-```{r cropped_ortho_overlay, message=FALSE, dependson = "bet"}
+```{r cropped_ortho_overlay, message=FALSE, dependson = "bet", fig.height = 3.5, fig.width= 3.5}
 cropped = dropEmptyImageDimensions(ss_t1)
 image(cropped, z = floor(dim(cropped)[3]/2), plot.type = "single")
 ```
@@ -226,14 +232,17 @@ ants_reg_flair$fwdtransforms = output
 
 ## Rigid-Body Registration Results
 
-```{r double_ortho}
-double_ortho(n4_t1, ants_reg_flair$outfile)
+```{r double_ortho, echo = FALSE, fig.width=8, fig.height=4}
+dd = dropEmptyImageDimensions(n4_t1 > 0,
+                              other.imgs = list(n4 = n4_t1, flair = ants_reg_flair$outfile))$other.imgs
+dd = lapply(dd, robust_window, probs = c(0, .99))
+double_ortho(dd$n4, dd$flair)
 ```
 
 ## Rigid-Body Registration Slice
 
-```{r multi_overlay2, fig.width=6, fig.height=4}
-multi_overlay(list(n4_t1, ants_reg_flair$outfile), z = 55)
+```{r multi_overlay2, echo = FALSE, fig.width=6, fig.height=4, dependson="double_ortho"}
+multi_overlay(dd, z = floor(dim(dd$n4)[3]/2))
 ```
 
 
@@ -262,15 +271,23 @@ ss_t1_to_mni = registration(
 
 
 ## Non-linear Registration Results
-```{r ants_reg_syn_ers, results='hide', message = FALSE, dependson="ants_reg_syn"}
+```{r ants_reg_syn_ers, results='hide', message = FALSE, dependson="ants_reg_syn", fig.width=8, fig.height=4, echo = FALSE}
 double_ortho(template.file, ss_t1_to_mni$outfile)
 ```
 
 
 ## Applying Registration Transformations
 
+```{r applying_trans, results='hide', message = FALSE, dependson="ants_reg_syn", echo = FALSE}
+flair = mask_img(ants_reg_flair$outfile, ss_t1 > 0)
+reg_flair_to_mni = ants_apply_transforms(
+  fixed = template.file, 
+  moving = flair, # registered FLAIR
+  interpolator = "Linear",
+  transformlist = ss_t1_to_mni$fwdtransforms )
+```
 
-```{r applying_trans, results='hide', message = FALSE, dependson="ants_reg_syn"}
+```{r applying_trans_show, results='hide', message = FALSE, eval = FALSE}
 reg_flair_to_mni = ants_apply_transforms(
   fixed = template.file, 
   moving = ants_reg_flair$outfile, # registered FLAIR
@@ -278,14 +295,14 @@ reg_flair_to_mni = ants_apply_transforms(
   transformlist = ss_t1_to_mni$fwdtransforms )
 ```
 
-## Non-linear Registration Results FLAIR
-```{r ants_reg_syn_res_flair, results='hide', message = FALSE, dependson="applying_trans"}
-double_ortho(template.file, reg_flair_to_mni)
+## Non-linear Transformation of FLAIR
+```{r ants_reg_syn_res_flair, results='hide', message = FALSE, dependson="applying_trans", fig.width=8, fig.height=4, echo = FALSE}
+double_ortho(template.file, reg_flair_to_mni, xyz = floor(dim(template.file)/2) + c(-2, -5, 0))
 ```
 
 ## Preprocess MRI: within a visit
 
-- Develop pipelines!
+We can develop pipelines/full analyses!
 
 `extrantsr::preprocess_mri_within` will do inhomogeneity correction, skull strip (or mask), and register to the first scan.
 
@@ -313,8 +330,7 @@ preprocess_mri_across(
 <div class = "col2">
 ANTsR/extrantsr: uses Atropos `r #citep("atropos")`
 
-- `antsRegistration` - `atropos`
-- `extrantsr` - `otropos` 
+- `ANTsR` - `atropos`, `extrantsr` - `otropos` 
 ```{r otropos}
 tissue_seg = otropos(
   a = ss_t1,
@@ -328,9 +344,11 @@ fslr: uses FAST `r #citep(c("sled1998nonparametric", "zhang2001segmentation"))`
 fast_t1 = fast(ss_t1, opts = "--nobias")
 ```
 
+See alos `spm12r_segment`
+
 <div>
 
-## Tissue-Class Segmentation Results
+## ANTsR Tissue-Class Segmentation 
 
 ```{r ortho2_tissue, echo = FALSE}
 dd = dropEmptyImageDimensions(
@@ -340,7 +358,7 @@ dd = dd$other.imgs
 ortho2(dd$ss, dd$seg, col.y = alpha(hotmetal(), 0.5))
 ```
 
-## Tissue-Class Segmentation Results
+## ANTsR Tissue-Class Segmentation 
 
 ```{r double_ortho_tissue, echo = FALSE, fig.width=6, fig.height=4}
 double_ortho(dd$ss, dd$seg)
@@ -374,7 +392,11 @@ ANTsR
 ## fMRI 
 - `fsl_slicetimer` - slice timing correction
 - `ANTsR::preprocessfMRI` 
-- `spm12r` package calls out MATLAB using SPM 
+- `spm12r` 
+    - slice timing correction
+    - realignment - get motion correction parameters
+    - co-registration
+    - segmentation/normalization to a template
 
 
 ## Intensity Normalization
@@ -387,48 +409,13 @@ ANTsR
 ## Overview
 
 - Many methods are being developed for processing neuroimaging in R
-- Analysis tools are already there
+- Analysis tools are largely already in R
 - These are not standardized nor centralized
 - Develop something like BioConductor
     - standard data structures
     - standard data sets
     - NITRC isn't exactly what we want
+- GitHub and Neuroconductor
 
 
 
-
-
-
-## Combining Registrations
-```{r ants_reg_syn_1interp, results='hide', message = FALSE}
-reg_flair_to_mni_1interp = ants_apply_transforms(
-  fixed = template.file, 
-  moving = files["flair"], # Raw FLAIR
-  transformlist = c(ants_reg_flair$fwdtransforms,
-                    ss_t1_to_mni$fwdtransforms),
-  interpolator = "Linear")
-```
-
-## Non-linear Registration
-```{r onestep, results='hide', message = FALSE}
-tfile = "FLAIR2.nii.gz"
-reg_flair_to_mni_1interp_1step = registration(
-  filename = ss_t1, 
-  template.file = template.file, 
-  typeofTransform = "SyN", 
-  other.files = files['flair'],
-  other.outfiles = tfile,
-  other.init = ants_reg_flair$fwdtransforms)
-```
-
-## Difference in Interpolations 
-```{r interp_show, message = FALSE}
-rat2 = abs((reg_flair_to_mni_1interp - reg_flair_to_mni) / (reg_flair_to_mni_1interp +  reg_flair_to_mni)) 
-rat2 = finite_img(rat2)
-ortho2(template.file, rat2, col.y = alpha(hotmetal(), 0.5))
-```
-
-## Difference in Interpolations Registrations
-```{r interp_show2, message = FALSE}
-double_ortho(reg_flair_to_mni_1interp, reg_flair_to_mni)
-```
