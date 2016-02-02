@@ -10,6 +10,10 @@ line-height:100px;
   text-align: center;
 }
 */
+img {
+  display: block; 
+  margin: auto;
+}
 
 slides > slide.nb2:after {
   font-size: 12pt;

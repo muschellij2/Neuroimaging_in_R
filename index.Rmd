@@ -1,5 +1,5 @@
 ---
-title: "Processing Neuroimaging Data in R: What can we do?"
+title: "Processing Neuroimaging Data in R: Capabilities"
 author: "John Muschelli"
 date: "February 19, 2015"
 bibliography: "index.bib"
@@ -45,6 +45,7 @@ knit_hooks$set(document = hook2)
 5. Image Registration
 6. Tissue-Class Segmentation
 7. Image operations
+8. Complex Modeling (yeah - it's R)
 
 ## Starting from Raw Data
 
@@ -99,27 +100,27 @@ base_t1 = readnii(files["t1"])
 - like an array
 - ANTsR uses pointers (faster), but not as intuitive
 
-## Simple Visualization: Orthographic View
+## Orthographic View
 
 ```{r ortho, message=FALSE, fig.height = 4, fig.width= 6}
 library(fslr)
 fslr::ortho2(base_t1)
 ```
 
-## Simple Visualization: Orthographic Overlays
+## Orthographic Overlays
 
 ```{r ortho_overlay_noalpha, message=FALSE, fig.height = 4, fig.width= 6}
 over_50 = mask_img(base_t1, base_t1 > 40); ortho2(base_t1, over_50)
 ```
 
-## Simple Visualization: Image Slices
+## Image Slices
 
 ```{r image, message=FALSE}
 image(base_t1, z = 55, plot.type = "single")
 ```
 
 
-## Simple Visualization: Slice Overlays
+## Slice Overlays
 
 ```{r overlay, message=FALSE}
 over_50[over_50 <= 0] = NA; over_50 = cal_img(over_50)
@@ -127,11 +128,22 @@ overlay(base_t1, over_50, z = 55, plot.type = "single")
 ```
 
 
+## Cropped Image Slices
+
+```{r cropped_ortho1, message=FALSE, echo = FALSE, fig.width=5, fig.height=5}
+mask = oMask(base_t1)
+mask = oMath(mask, "MD", 7)
+cropped = dropEmptyImageDimensions(mask, other.imgs = base_t1)$other.imgs
+image(cropped, z = floor(dim(cropped)[3]/2), plot.type = "single")
+```
+
+
+
 ## Bias Field Correction
 
 ANTsR/extrantsr 
 
-- `bias_correct` from `extrantsr` package calls `ANTsR::n4BiasFieldCorrection` `r #citep("tustison_n4itk_2010")`
+- `bias_correct` from `extrantsr` package calls `ANTsR::n4BiasFieldCorrection` [@tustison_n4itk_2010]
 - EM-like, assumes bias is smooth over space, logs the data
 
 ```{r bias_corr}
@@ -163,14 +175,14 @@ ortho2(ss_t1)
 
 ## Overlaying Skull Stripped mask
 
-```{r ortho_overlay, message=FALSE, dependson = "bet", fig.height = 3.5, fig.width= 6}
+```{r ortho_overlay, message=FALSE, dependson = "bet", fig.height = 4, fig.width= 6}
 mask = ss_t1 > 0
 ortho2(base_t1, y = mask, col.y = alpha("red", 0.5))
 ```
 
 ## Visualization: Cropped Image Slices
 
-```{r cropped_ortho_overlay, message=FALSE, dependson = "bet", fig.height = 3.5, fig.width= 3.5}
+```{r cropped_ortho_overlay, message=FALSE, dependson = "bet", fig.height = 4.5, fig.width= 4.5}
 cropped = dropEmptyImageDimensions(ss_t1)
 image(cropped, z = floor(dim(cropped)[3]/2), plot.type = "single")
 ```
@@ -179,7 +191,6 @@ image(cropped, z = floor(dim(cropped)[3]/2), plot.type = "single")
 
 - `rgl`, `misc3d` (`contour3d` function)
 - `brainR` - put on a webpage with some controls
-http://bit.ly/grid_brain
 
 ```{r spinning_brain_run, message=FALSE, results='hide', eval = TRUE, echo = FALSE}
 if (!all(file.exists("cage.gif", "grid.gif"))) {
@@ -191,7 +202,7 @@ if (!all(file.exists("cage.gif", "grid.gif"))) {
 devtools::source_gist("bd40d10afabc503d71e8")
 ```
 
-![](cage.gif)
+<img src="cage.gif" style="width: 45%; display: block; margin: auto;">
 
 
 ## Rigid-Body Registration
@@ -212,6 +223,8 @@ fslr
 
 ## Image Registration: Rigid-Body Registration
 
+- `registration` from `extrantsr` is a general function to do linear/non-linear registration
+- uses `antsRegistration`
 
 ```{r reg_flair, include= FALSE}
 reg_flair = flirt(infile = files['flair'], reffile = n4_t1, dof = 6)
@@ -247,12 +260,19 @@ multi_overlay(dd, z = floor(dim(dd$n4)[3]/2))
 
 
 ## Non-linear Registration
+
+- Registering the skull-stripped T1-weighted image to the MNI 152 brain image
+- Uses Symmetric Normalization (SyN) [@avants_symmetric_2008]
 ```{r ants_reg_syn, results='hide', echo = FALSE, message = FALSE}
 template.file = mni_fname(mm = "1", brain = TRUE)
 template.file = readnii(template.file)
-template.mask = template.file > 0
+template.mask = gsub("[.]nii", "_mask.nii", mni_fname(mm = "1", brain = TRUE))
+template.mask = readnii(template.mask)
+
 template.file = dropEmptyImageDimensions(template.mask, 
-                                         other.imgs = template.file)$other.imgs
+                                         other.imgs = template.file)
+template.mask = template.file$outimg
+template.file = template.file$other.imgs
 ss_t1_to_mni = registration(
   filename = ss_t1, 
   template.file = template.file, 
@@ -272,7 +292,8 @@ ss_t1_to_mni = registration(
 
 ## Non-linear Registration Results
 ```{r ants_reg_syn_ers, results='hide', message = FALSE, dependson="ants_reg_syn", fig.width=8, fig.height=4, echo = FALSE}
-double_ortho(template.file, ss_t1_to_mni$outfile)
+outfile = mask_img(ss_t1_to_mni$outfile, template.mask)
+double_ortho(template.file, outfile)
 ```
 
 
@@ -328,7 +349,7 @@ preprocess_mri_across(
 
 ## Tissue-Class Segmentation
 <div class = "col2">
-ANTsR/extrantsr: uses Atropos `r #citep("atropos")`
+ANTsR/extrantsr: uses Atropos [@atropos]
 
 - `ANTsR` - `atropos`, `extrantsr` - `otropos` 
 ```{r otropos}
@@ -337,9 +358,9 @@ tissue_seg = otropos(
   x = mask)
 ```
 
-fslr: uses FAST `r #citep(c("sled1998nonparametric", "zhang2001segmentation"))`
+fslr: uses FAST [@zhang2001segmentation]
 
-- `--nobias` as an option does not do bias field correction (if already done)
+- `--nobias` as an option does not do bias field correction
 ```{r fast}
 fast_t1 = fast(ss_t1, opts = "--nobias")
 ```
@@ -350,17 +371,29 @@ See alos `spm12r_segment`
 
 ## ANTsR Tissue-Class Segmentation 
 
-```{r ortho2_tissue, echo = FALSE}
+```{r ortho2_tissue, echo = FALSE, fig.width =7, fig.height=5}
 dd = dropEmptyImageDimensions(
   ss_t1 > 0, 
   other.imgs = list(ss = ss_t1, seg = tissue_seg$segmentation))
 dd = dd$other.imgs
+dd$ss = robust_window(dd$ss, probs = c(0, .99))
 ortho2(dd$ss, dd$seg, col.y = alpha(hotmetal(), 0.5))
 ```
 
 ## ANTsR Tissue-Class Segmentation 
 
-```{r double_ortho_tissue, echo = FALSE, fig.width=6, fig.height=4}
+```{r double_ortho_tissue, echo = FALSE, fig.width=8, fig.height=4, dependson = "ortho2_tissue"}
+double_ortho(dd$ss, dd$seg)
+```
+
+## fslr Tissue-Class Segmentation 
+
+```{r fslr_double_ortho_tissue, echo = FALSE, fig.width=8, fig.height=4}
+dd = dropEmptyImageDimensions(
+  ss_t1 > 0, 
+  other.imgs = list(ss = ss_t1, seg = fast_t1))
+dd = dd$other.imgs
+dd$ss = robust_window(dd$ss, probs = c(0, .99))
 double_ortho(dd$ss, dd$seg)
 ```
 
@@ -401,7 +434,7 @@ ANTsR
 
 ## Intensity Normalization
 
-- WhiteStripe `r #citet("shinohara_statistical_2014")`
+- WhiteStripe [@shinohara_statistical_2014]
 - Whole brain z-scoring 
 - Histogram matching 
 - General standardization methods 
@@ -417,5 +450,9 @@ ANTsR
     - NITRC isn't exactly what we want
 - GitHub and Neuroconductor
 
+## Bibliography
 
+```{r}
+
+```
 
