@@ -5,10 +5,16 @@ date: "February 19, 2015"
 bibliography: "index.bib"
 output:
   ioslides_presentation:
+    self_contained: false
+    includes:
+      in_header: header.html
     css: john.css
     fig_width: 5
     fig_height: 5
   slidy_presentation:
+    self_contained: false
+    includes:
+      in_header: header.html
     css: john.css
     fig_width: 5
     fig_height: 5
@@ -451,6 +457,7 @@ ANTsR
 - GitHub and Neuroconductor
 
 ## Viz
+
 <div class="papaya" data-params="params"></div>
 
 ## Bibliography
