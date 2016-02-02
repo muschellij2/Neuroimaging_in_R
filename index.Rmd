@@ -100,8 +100,7 @@ fslr::ortho2(base_t1)
 ## Quick Plots: Overlays
 
 ```{r ortho_overlay_noalpha, message=FALSE}
-over_50 = mask_img(base_t1, base_t1 > 40)
-fslr::ortho2(base_t1, over_50)
+over_50 = mask_img(base_t1, base_t1 > 40); ortho2(base_t1, over_50)
 ```
 
 ## Visualization: Image Slices
@@ -239,7 +238,20 @@ multi_overlay(list(n4_t1, ants_reg_flair$outfile), z = 55)
 
 
 ## Non-linear Registration
-```{r ants_reg_syn, results='hide', message = FALSE}
+```{r ants_reg_syn, results='hide', echo = FALSE, message = FALSE}
+template.file = mni_fname(mm = "1", brain = TRUE)
+template.file = readnii(template.file)
+template.mask = template.file > 0
+template.file = dropEmptyImageDimensions(template.mask, 
+                                         other.imgs = template.file)$other.imgs
+ss_t1_to_mni = registration(
+  filename = ss_t1, 
+  template.file = template.file, 
+  typeofTransform = "SyN", remove.warp = FALSE,
+  outprefix = "temp")
+```
+
+```{r ants_reg_syn_show, eval = FALSE, message = FALSE}
 template.file = mni_fname(mm = "1", brain = TRUE)
 ss_t1_to_mni = registration(
   filename = ss_t1, 
@@ -250,7 +262,7 @@ ss_t1_to_mni = registration(
 
 
 ## Non-linear Registration Results
-```{r ants_reg_syn_ers, results='hide', message = FALSE}
+```{r ants_reg_syn_ers, results='hide', message = FALSE, dependson="ants_reg_syn"}
 double_ortho(template.file, ss_t1_to_mni$outfile)
 ```
 
@@ -258,7 +270,7 @@ double_ortho(template.file, ss_t1_to_mni$outfile)
 ## Applying Registration Transformations
 
 
-```{r applying_trans, results='hide', message = FALSE}
+```{r applying_trans, results='hide', message = FALSE, dependson="ants_reg_syn"}
 reg_flair_to_mni = ants_apply_transforms(
   fixed = template.file, 
   moving = ants_reg_flair$outfile, # registered FLAIR
@@ -267,7 +279,7 @@ reg_flair_to_mni = ants_apply_transforms(
 ```
 
 ## Non-linear Registration Results FLAIR
-```{r ants_reg_syn_res_flair, results='hide', message = FALSE}
+```{r ants_reg_syn_res_flair, results='hide', message = FALSE, dependson="applying_trans"}
 double_ortho(template.file, reg_flair_to_mni)
 ```
 
@@ -298,15 +310,7 @@ preprocess_mri_across(
 
 
 ## Tissue-Class Segmentation
-<div class = "left-half">
-fslr: uses FAST `r #citep(c("sled1998nonparametric", "zhang2001segmentation"))`
-
-- `--nobias` as an option does not do bias field correction (if already done)
-```{r fast}
-fast_t1 = fast(ss_t1, opts = "--nobias")
-```
-<div>
-<div class = "right-half">
+<div class = "col2">
 ANTsR/extrantsr: uses Atropos `r #citep("atropos")`
 
 - `antsRegistration` - `atropos`
@@ -316,13 +320,33 @@ tissue_seg = otropos(
   a = ss_t1,
   x = mask)
 ```
+
+fslr: uses FAST `r #citep(c("sled1998nonparametric", "zhang2001segmentation"))`
+
+- `--nobias` as an option does not do bias field correction (if already done)
+```{r fast}
+fast_t1 = fast(ss_t1, opts = "--nobias")
+```
+
 <div>
 
 ## Tissue-Class Segmentation Results
 
-```{r double_ortho_tissue}
-double_ortho(ss_t1, tissue_seg$segmentation)
+```{r ortho2_tissue, echo = FALSE}
+dd = dropEmptyImageDimensions(
+  ss_t1 > 0, 
+  other.imgs = list(ss = ss_t1, seg = tissue_seg$segmentation))
+dd = dd$other.imgs
+ortho2(dd$ss, dd$seg, col.y = alpha(hotmetal(), 0.5))
 ```
+
+## Tissue-Class Segmentation Results
+
+```{r double_ortho_tissue, echo = FALSE, fig.width=6, fig.height=4}
+double_ortho(dd$ss, dd$seg)
+```
+
+
 
 ## Image operations
 <div class = "left-half">
