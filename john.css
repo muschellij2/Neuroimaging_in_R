@@ -1,0 +1,163 @@
+/*
+#container {
+height:100px;
+line-height:100px;
+}
+
+#container img {
+  vertical-align:text-top;
+  max-height:100%;
+  text-align: center;
+}
+*/
+
+slides > slide.nb2:after {
+  font-size: 12pt;
+  content: '';
+  position: absolute;
+  bottom: 20px;
+  right: 60px;
+  line-height: 1.9;
+}
+
+#nextsteps {
+content: "";
+}
+
+table.rmdtable tr, table.rmdtable td {
+  padding-top: 0em;
+  padding-bottom: 0em;
+  font-size: 24px;
+  
+}
+
+#botval { position: relative; }
+#botval-content { position: absolute; bottom: 15%; left: 0; }
+
+/*slides > slide {
+  font-size: 26px;
+}*/
+  
+  strong { 
+    font-weight: bolder;
+    color: black;
+  }
+
+p { 
+  color: black;
+}
+
+li {
+  color: black;
+}
+
+#wrap {
+width:100%;
+margin:0 auto;
+}
+#left_col {
+float:left;
+width:60%;
+}
+#right_col {
+float:right;
+width:35%;
+}
+
+
+#left_col2 {
+color: black;
+float:left;
+width:35%;
+}
+#right_col2 {
+float:right;
+width:60%;
+}
+
+
+.helper {
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+}
+
+
+/*
+.title-slide hgroup h1 {
+  text-align: center;
+}
+*/
+
+h2 {
+  text-align: center;
+}
+
+/*
+  .title-slide hgroup h2 {
+    text-align: center;
+  }
+*/
+  
+  .source {
+    text-align: center;
+  }
+
+
+.centerer {
+  text-align: center;
+}
+
+.column-left{ 
+  float: left; width: 33%; 
+}
+.column-right{ 
+  float: right; width: 33%; 
+}
+.column-center{ 
+  display: inline-block; width: 33%; 
+}
+
+
+.left-half{ 
+  float: left; width: 48%; 
+}
+.right-half{ 
+  float: right; width: 48%; 
+}
+
+.left-half-code{ 
+  float: left; width: 45%; 
+}
+.right-half-code{ 
+  float: right; width: 45%; 
+}
+
+
+div {
+  color: black;
+}
+
+/*
+pre {
+  font-family: 'Source Code Pro', 'Courier New', monospace;
+  font-size: 20px;
+  line-height: 28px;
+  padding: 10px 0 10px 60px;
+  letter-spacing: -1px;
+  margin-bottom: 20px;
+  width: 106%;
+  left: -60px;
+  position: relative;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+*/
+
+
+  .col2 {
+    columns: 2 50%;         /* number of columns and width in pixels*/
+    -webkit-columns: 2 50%; /* chrome, safari */
+    -moz-columns: 2 50%;    /* firefox */
+  }

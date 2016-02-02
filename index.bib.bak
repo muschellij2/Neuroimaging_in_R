@@ -1,0 +1,75 @@
+
+@article{shinohara_statistical_2014,
+	title = {Statistical normalization techniques for magnetic resonance imaging},
+	volume = {6},
+	issn = {2213-1582},
+	url = {http://www.sciencedirect.com/science/article/pii/S221315821400117X},
+	doi = {10.1016/j.nicl.2014.08.008},
+	abstract = {While computed tomography and other imaging techniques are measured in absolute units with physical meaning, magnetic resonance images are expressed in arbitrary units that are difficult to interpret and differ between study visits and subjects. Much work in the image processing literature on intensity normalization has focused on histogram matching and other histogram mapping techniques, with little emphasis on normalizing images to have biologically interpretable units. Furthermore, there are no formalized principles or goals for the crucial comparability of image intensities within and across subjects. To address this, we propose a set of criteria necessary for the normalization of images. We further propose simple and robust biologically motivated normalization techniques for multisequence brain imaging that have the same interpretation across acquisitions and satisfy the proposed criteria. We compare the performance of different normalization methods in thousands of images of patients with Alzheimer's disease, hundreds of patients with multiple sclerosis, and hundreds of healthy subjects obtained in several different studies at dozens of imaging centers.},
+	pages = {9--19},
+	journaltitle = {{NeuroImage}: Clinical},
+	shortjournal = {{NeuroImage}: Clinical},
+	author = {Shinohara, Russell T. and Sweeney, Elizabeth M. and Goldsmith, Jeff and Shiee, Navid and Mateen, Farrah J. and Calabresi, Peter A. and Jarso, Samson and Pham, Dzung L. and Reich, Daniel S. and Crainiceanu, Ciprian M.},
+	urldate = {2015-08-05},
+	date = {2014},
+	note = {00005},
+	keywords = {Image analysis, Magnetic Resonance Imaging, Normalization, Statistics},
+	file = {ScienceDirect Full Text PDF:/Users/johnmuschelli/Library/Application Support/Zotero/Profiles/9yinbn16.default/zotero/storage/M9HFSPEP/Shinohara et al. - 2014 - Statistical normalization techniques for magnetic .pdf:application/pdf;ScienceDirect Snapshot:/Users/johnmuschelli/Library/Application Support/Zotero/Profiles/9yinbn16.default/zotero/storage/USIDNDTV/S221315821400117X.html:text/html}
+}
+
+
+
+@article{atropos,
+  title={An open source multivariate framework for n-tissue segmentation with evaluation on public data},
+  author={Avants, Brian B and Tustison, Nicholas J and Wu, Jue and Cook, Philip A and Gee, James C},
+  journal={Neuroinformatics},
+  volume={9},
+  number={4},
+  pages={381--400},
+  year={2011},
+  publisher={Springer}
+}
+
+
+@article{smith_fast_2002,
+	title = {Fast robust automated brain extraction},
+	volume = {17},
+	rights = {Copyright © 2002 Wiley-Liss, Inc.},
+	issn = {1097-0193},
+	url = {http://onlinelibrary.wiley.com/doi/10.1002/hbm.10062/abstract},
+	doi = {10.1002/hbm.10062},
+	abstract = {An automated method for segmenting magnetic resonance head images into brain and non-brain has been developed. It is very robust and accurate and has been tested on thousands of data sets from a wide variety of scanners and taken with a wide variety of {MR} sequences. The method, Brain Extraction Tool ({BET}), uses a deformable model that evolves to fit the brain's surface by the application of a set of locally adaptive model forces. The method is very fast and requires no preregistration or other pre-processing before being applied. We describe the new method and give examples of results and the results of extensive quantitative testing against “gold-standard” hand segmentations, and two other popular automated methods. Hum. Brain Mapping 17:143–155, 2002. © 2002 Wiley-Liss, Inc.},
+	pages = {143–155},
+	number = {3},
+	journaltitle = {Human Brain Mapping},
+	author = {Smith, Stephen M.},
+	urldate = {2014},
+	date = {2002},
+	langid = {english},
+	keywords = {brain segmentation, cortical surface modeling},
+	file = {Smith_2002_Fast robust automated brain extraction.pdf:/Users/johnmuschelli/Library/Application Support/Zotero/Profiles/9yinbn16.default/zotero/storage/ZSXDCDIG/Smith_2002_Fast robust automated brain extraction.pdf:application/pdf;Snapshot:/Users/johnmuschelli/Library/Application Support/Zotero/Profiles/9yinbn16.default/zotero/storage/6932EW7R/full.html:text/html;Snapshot:/Users/johnmuschelli/Library/Application Support/Zotero/Profiles/9yinbn16.default/zotero/storage/QJG9M232/abstract.html:text/html}
+}
+
+
+
+@article{sled1998nonparametric,
+  title={A nonparametric method for automatic correction of intensity nonuniformity in MRI data},
+  author={Sled, John G and Zijdenbos, Alex P and Evans, Alan C},
+  journal={Medical Imaging, IEEE Transactions on},
+  volume={17},
+  number={1},
+  pages={87--97},
+  year={1998},
+  publisher={IEEE}
+}
+
+@article{zhang2001segmentation,
+  title={Segmentation of brain MR images through a hidden Markov random field model and the expectation-maximization algorithm},
+  author={Zhang, Yongyue and Brady, Michael and Smith, Stephen},
+  journal={Medical Imaging, IEEE Transactions on},
+  volume={20},
+  number={1},
+  pages={45--57},
+  year={2001},
+  publisher={IEEE}
+}

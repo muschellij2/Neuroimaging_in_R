@@ -1,0 +1,20 @@
+# History files
+.Rhistory
+
+# Example code in package build process
+*-Ex.R
+
+# R data files from past sessions
+.Rdata
+
+# RStudio files
+.Rproj.user/
+
+*Warp.nii.gz
+
+White_Matter_Lesion_Segmentation_Testdata.zip
+SS_Image.nii.gz
+index_cache/html/*
+index_cache/slidy/*
+
+.Rproj.user
