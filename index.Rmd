@@ -227,7 +227,7 @@ fslr
 <div>
 
 
-## Image Registration: Rigid-Body Registration
+## Rigid-Body Registration
 
 - `registration` from `extrantsr` is a general function to do linear/non-linear registration
 - uses `antsRegistration`
