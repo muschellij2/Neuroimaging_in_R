@@ -21,4 +21,5 @@ SS_Image.nii.gz
 index_cache/html/*
 index_cache/slidy/*
 
+myproc_cache/html/*
 .Rproj.user
