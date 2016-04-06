@@ -392,9 +392,10 @@ double_ortho(template.file, outfile)
 
 
 
-## fMRI 
+## Functional MRI Processing
 - `fsl_slicetimer` - slice timing correction
 - `ANTsR::preprocessfMRI` 
+- `fmri`/`AnalyzeFMRI`
 - `spm12r` 
     - slice timing correction
     - realignment - get motion correction parameters
