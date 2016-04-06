@@ -29,10 +29,8 @@ library(scales)
 library(ANTsR)
 library(extrantsr)
 
-options(fsl.path = "/usr/local/fsl/")
-options(fsl.outputtype = "NIFTI_GZ")
 library(fslr)
-
+x = get.fsl()
 library(knitcitations)
 library(RefManageR)
 cleanbib()
@@ -72,7 +70,7 @@ files
     - maybe not machine learning (scikit-learn)
 - Statistics programs commonly teach it
 - Packages have been developed for imaging
-
+- Shiny
 
 
 ## oro.nifti (Brandon Whitcher, CRAN)
@@ -116,7 +114,7 @@ print(base_t1)
 base_t1 = robust_window(base_t1)
 ```
 
-```{r fslsmooth, results='hide', echo = FALSE, message = FALSE}
+```{r fslsmooth, results='hide', echo = FALSE, message = FALSE, include=FALSE}
 smooth = fslsmooth(base_t1, sigma = 5)
 ortho2(smooth, NA.x = TRUE, crosshairs = FALSE, add.orient = FALSE)
 ```
@@ -178,7 +176,17 @@ n4_t1 = bias_correct(file = base_t1, correction = "N4", retimg = TRUE)
 
 - **`fslr::double_ortho`** shows side-by-side images
 ```{r bias_double, fig.height = 5, fig.width = 7, eval = TRUE, echo = FALSE}
-double_ortho(base_t1, robust_window(n4_t1), NA.x = TRUE, add.orient = FALSE, crosshairs = FALSE)
+q = quantile(c(base_t1), probs = 0.9)
+human_mask = base_t1 > q
+
+dd = dropEmptyImageDimensions(
+  human_mask, 
+  other.imgs = list(ss = base_t1, n4 = n4_t1))
+dd = dd$other.imgs
+ss = robust_window(dd$ss, probs = c(0, .99))
+n4 = robust_window(dd$n4, probs = c(0, .99))
+double_ortho(ss, n4, NA.x = TRUE, add.orient = FALSE, crosshairs = FALSE)
+rm(list=c("ss"))
 ```
 
 ## Ratio shows Intensities Changes
@@ -188,9 +196,9 @@ ortho2(n4_t1, ratio, col.y = alpha(hotmetal(), 0.75))
 ```
 
 ```{r bias, fig.height = 4, fig.width= 6, eval = TRUE, echo = FALSE}
-ratio = finite_img(n4_t1 / base_t1)
+ratio = finite_img(dd$n4 / dd$ss)
 ratio = robust_window(ratio)
-ortho2(robust_window(n4_t1), ratio, col.y = alpha(hotmetal(), 0.75), add.orient = FALSE, crosshairs = FALSE)
+ortho2(n4, ratio, col.y = alpha(hotmetal(), 0.75), add.orient = FALSE, crosshairs = FALSE)
 ```
 
 
@@ -260,9 +268,9 @@ double_ortho(dd$ss, dd$seg, crosshairs = FALSE, add.orient = FALSE)
 
 ## Rigid-Body Registration
 
-- `extrantsr::registration` (wraps `ANTsR::antsRegistration`)
+- `extrantsr::registration` (wraps `antsRegistration`)
 
-<img src="Reg_Figure_Option1_short_within2.png" style="width:60%">
+<img src="Reg_Figure_Option1_short_within2.png" style="width:70%">
 
 
 ```{r flair_t2_bc, results='hide', message = FALSE, echo = FALSE}
@@ -316,7 +324,7 @@ s = df[ sample(nrow(df), size = 2e5), ]
 q = qplot(t1, flair, data = s, geom = "bin2d", bins = 100) + 
   scale_fill_gradientn(colours = r, name = "# Voxels") + 
   geom_smooth(se = FALSE, colour = "red") + 
-  theme_grey(base_size = 25) + labs(x = "T1 Intensity", y = "FLAIR Intensity") 
+  theme_grey(base_size = 25) + labs(x = "T1 Intensity (a.u.)", y = "FLAIR Intensity (a.u.)") 
 q = q + theme(legend.position = c(0.91, 0.52), 
               legend.key.height = unit(.12, units = "npc") ) + 
   transparent_legend
@@ -376,7 +384,7 @@ ss_t1_to_mni = registration(filename = t1_skull_stripped,
 
 
 ## Non-linear Registration Results
-```{r ants_reg_syn_ers, results='hide', message = FALSE, dependson="ants_reg_syn", fig.width=8, fig.height=6, echo = FALSE}
+```{r ants_reg_syn_ers, results='hide', message = FALSE, dependson="ants_reg_syn", fig.width=8, fig.height=5.5, echo = FALSE}
 outfile = mask_img(ss_t1_to_mni$outfile, template.mask)
 double_ortho(template.file, outfile)
 ```
