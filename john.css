@@ -159,9 +159,8 @@ pre {
 }
 */
 
-
-  .col2 {
-    columns: 2 50%;         /* number of columns and width in pixels*/
-    -webkit-columns: 2 50%; /* chrome, safari */
-    -moz-columns: 2 50%;    /* firefox */
-  }
+.col2 {
+  columns: 2 50%;         /* number of columns and width in pixels*/
+  -webkit-columns: 2 50%; /* chrome, safari */
+  -moz-columns: 2 50%;    /* firefox */
+}

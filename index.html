@@ -10,7 +10,7 @@
 
 
 
-  <meta name="date" content="2015-02-19" />
+  <meta name="date" content="2016-04-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,7 +27,8 @@
       // Slide settings
       settings: {
                 title: 'Processing Neuroimaging Data in R: Capabilities',
-                        useBuilds: true,
+                        subtitle: '<a href="https://github.com/muschellij2/Neuroimaging_in_R" class="uri">https://github.com/muschellij2/Neuroimaging_in_R</a>',
+                useBuilds: true,
         usePrettify: true,
         enableSlideAreas: true,
         enableTouch: true,
@@ -98,7 +99,7 @@
       <h1 data-config-title><!-- populated from slide_config.json --></h1>
       <h2 data-config-subtitle><!-- populated from slide_config.json --></h2>
       <p data-config-presenter><!-- populated from slide_config.json --></p>
-            <p style="margin-top: 6px; margin-left: -2px;">February 19, 2015</p>
+            <p style="margin-top: 6px; margin-left: -2px;">April 10, 2016</p>
           </hgroup>
   </slide>
 
@@ -128,7 +129,7 @@
             t1             t2             pd          flair 
    &quot;T1.nii.gz&quot;    &quot;T2.nii.gz&quot;    &quot;PD.nii.gz&quot; &quot;FLAIR.nii.gz&quot; </pre>
 
-</article></slide><slide class=''><hgroup><h2>Starting from Raw Data</h2></hgroup><article  id="starting-from-raw-data">
+</article></slide><slide class=''><hgroup><h2>Starting from Raw Data/DICOM</h2></hgroup><article  id="starting-from-raw-datadicom">
 
 <ul>
 <li><code>oro.dicom</code> - read/write DICOM data, the nifti object
@@ -139,9 +140,14 @@
 <li><code>dcm2niir</code> - uses <code>dcm2nii</code> from Chris Rorden
 
 <ul>
-<li>Can handle Par/Rec and many scanner types</li>
+<li>Handles <strong>MANY</strong> scanner types</li>
+<li>Located at <a href='https://github.com/muschellij2/dcm2niir' title=''>https://github.com/muschellij2/dcm2niir</a></li>
 </ul></li>
-<li><code>matlabr</code> - could use <code>dicomread</code> matlab code and excecute through R</li>
+<li><code>matlabr</code> - could use <code>dicomread</code> MATLAB code and excecute through R
+
+<ul>
+<li>Located at <a href='https://github.com/muschellij2/matlabr' title=''>https://github.com/muschellij2/matlabr</a></li>
+</ul></li>
 </ul>
 
 </article></slide><slide class=''><hgroup><h2>Introduction: Packages</h2></hgroup><article  id="introduction-packages">
@@ -149,14 +155,25 @@
 <p>Medical Imaging Task View</p>
 
 <ul>
-<li><code>oro.nifti</code>: read/write data, the nifti object</li>
-<li><code>fslr</code>: process data (need FSL for most of the functionality)</li>
-<li><strong><code>ANTsR</code>: process data (full toolbox)</strong></li>
-<li><strong><code>extrantsr</code>: makes ANTsR work with nifti objects</strong></li>
 <li><p><code>dti</code> - adaptive smoothing and diffusion tensor tools</p></li>
 <li><code>fmri</code> - post-processing analysis: linear models and p-value smoothing</li>
 <li><code>AnalyzeFMRI</code> - fMRI analysis (last updated in 2013)</li>
 <li><p><code>spm12r</code> package calls out MATLAB using SPM</p></li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Introduction: Packages used Here</h2></hgroup><article  id="introduction-packages-used-here">
+
+<p>Medical Imaging Task View</p>
+
+<ul>
+<li><code>oro.nifti</code>: read/write data, the nifti object</li>
+<li><code>fslr</code>: process data (need FSL for most of the functionality)</li>
+<li><strong><code>ANTsR</code>: process data (full toolbox)</strong>
+
+<ul>
+<li>Located at <a href='https://github.com/stnava/ANTsR' title=''>https://github.com/stnava/ANTsR</a></li>
+</ul></li>
+<li><strong><code>extrantsr</code>: makes ANTsR work with nifti objects</strong></li>
 </ul>
 
 </article></slide><slide class=''><hgroup><h2>Basics: Read in the Files!</h2></hgroup><article  id="basics-read-in-the-files">
@@ -221,7 +238,7 @@ FSLDIR=&#39;/usr/local/fsl/&#39;; export FSLDIR; sh &quot;${FSLDIR}/etc/fslconf/
 </article></slide><slide class=''><hgroup><h2>Bias Field Correction: Results</h2></hgroup><article  id="bias-field-correction-results">
 
 <pre class = 'prettyprint lang-r'>ratio = finite_img(n4_t1 / base_t1)
-ortho2(n4_t1, ratio, col.y = alpha(hotmetal(), 0.5))</pre>
+ortho2(n4_t1, ratio, col.y = alpha(hotmetal(), 0.75))</pre>
 
 <p><img src="index_files/figure-html/bias-1.png" title="" alt="" width="576" /></p>
 
@@ -320,40 +337,6 @@ ss_t1_to_mni = registration(
 
 <p><img src="index_files/figure-html/ants_reg_syn_ers-1.png" title="" alt="" width="768" /></p>
 
-</article></slide><slide class=''><hgroup><h2>Applying Registration Transformations</h2></hgroup><article  id="applying-registration-transformations">
-
-<pre class = 'prettyprint lang-r'>reg_flair_to_mni = ants_apply_transforms(
-  fixed = template.file, 
-  moving = ants_reg_flair$outfile, # registered FLAIR
-  interpolator = &quot;Linear&quot;,
-  transformlist = ss_t1_to_mni$fwdtransforms )</pre>
-
-</article></slide><slide class=''><hgroup><h2>Non-linear Transformation of FLAIR</h2></hgroup><article  id="non-linear-transformation-of-flair">
-
-<p><img src="index_files/figure-html/ants_reg_syn_res_flair-1.png" title="" alt="" width="768" /></p>
-
-</article></slide><slide class=''><hgroup><h2>Preprocess MRI: within a visit</h2></hgroup><article  id="preprocess-mri-within-a-visit">
-
-<p>We can develop pipelines/full analyses!</p>
-
-<p><code>extrantsr::preprocess_mri_within</code> will do inhomogeneity correction, skull strip (or mask), and register to the first scan.</p>
-
-<pre class = 'prettyprint lang-r'>proc_images = preprocess_mri_within(
-  files = files[c(&quot;t1&quot;, &quot;t2&quot;, &quot;pd&quot;, &quot;flair&quot;)], 
-  maskfile = ss_t1 &gt; 0)</pre>
-
-</article></slide><slide class=''><hgroup><h2>Preprocess MRI: across visits</h2></hgroup><article  id="preprocess-mri-across-visits">
-
-<p><code>preprocess_mri_across</code> combines <code>preprocess_mri_within</code> and <code>registration</code>. If you had baseline/follow-up data:</p>
-
-<pre class = 'prettyprint lang-r'>outfiles = gsub(&quot;[.]nii&quot;, &#39;_process.nii&#39;, files)
-preprocess_mri_across(
-  baseline_files, followup_files,
-  baseline_outfiles, followup_outfiles,
-  maskfile)</pre>
-
-<p><img src="Reg_Figure_Option1_short_across.png" style="width:80%"></p>
-
 </article></slide><slide class=''><hgroup><h2>Tissue-Class Segmentation</h2></hgroup><article  id="tissue-class-segmentation">
 
 <div class = "col2">
@@ -364,8 +347,7 @@ preprocess_mri_across(
 <li><code>ANTsR</code> - <code>atropos</code>, <code>extrantsr</code> - <code>otropos</code></li>
 </ul>
 
-<pre class = 'prettyprint lang-r'>tissue_seg = otropos(
-  a = ss_t1,
+<pre class = 'prettyprint lang-r'>tissue_seg = otropos(a = ss_t1,
   x = mask)</pre>
 
 <p>fslr: uses FAST <span class="cite">(Zhang, Brady, and Smith 2001)</span></p>
@@ -382,11 +364,10 @@ FSLDIR=&#39;/usr/local/fsl/&#39;; export FSLDIR; sh &quot;${FSLDIR}/etc/fslconf/
 <div>
 
 
+
+
+
 </article></slide><slide class=''><hgroup><h2>ANTsR Tissue-Class Segmentation</h2></hgroup><article  id="antsr-tissue-class-segmentation">
-
-<p><img src="index_files/figure-html/ortho2_tissue-1.png" title="" alt="" width="672" /></p>
-
-</article></slide><slide class=''><hgroup><h2>ANTsR Tissue-Class Segmentation</h2></hgroup><article  id="antsr-tissue-class-segmentation-1">
 
 <p><img src="index_files/figure-html/double_ortho_tissue-1.png" title="" alt="" width="768" /></p>
 

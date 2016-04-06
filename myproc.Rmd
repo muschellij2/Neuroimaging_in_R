@@ -1,0 +1,401 @@
+---
+title: "Processing Neuroimaging Data in R: Capabilities"
+subtitle: 'https://github.com/muschellij2/Neuroimaging_in_R'
+author: "John Muschelli http://johnmuschelli.com/Neuroimaging_in_R"
+date: "April 10, 2016"
+bibliography: "index.bib"
+output:
+  ioslides_presentation:
+    self_contained: false
+    includes:
+      in_header: header.html
+    css: john.css
+    fig_width: 5
+    fig_height: 5
+  slidy_presentation:
+    self_contained: false
+    includes:
+      in_header: header.html
+    css: john.css
+    fig_width: 5
+    fig_height: 5
+---
+
+
+```{r knit-setup, echo=FALSE, results='hide', eval=TRUE, cache = FALSE, warning = FALSE, message = FALSE}
+rm( list = ls() )
+library(knitr)
+library(scales)
+library(ANTsR)
+library(extrantsr)
+
+options(fsl.path = "/usr/local/fsl/")
+options(fsl.outputtype = "NIFTI_GZ")
+library(fslr)
+
+library(knitcitations)
+library(RefManageR)
+cleanbib()
+options(citation_format = "pandoc")
+bib <- ReadBib("index.bib", check = TRUE)
+opts_chunk$set(cache = TRUE, comment = "", warning = FALSE)
+hook1 <- function(x){ gsub("```\n*```r*\n*", "", x) }
+hook2 <- function(x){ gsub("```\n+```\n", "", x) }
+knit_hooks$set(document = hook2)
+```
+
+## Data used from NITRC
+
+Multi-sequence MRI dataset from HAMMER, (NIfTI conversion from ANALYZE).  
+
+- Using 3 MRI sequences: **T1-weighted, T2-weighted, FLAIR**
+
+```{r makefiles, echo=FALSE}
+files = c(t1 = "T1.nii.gz",
+          t2 = "T2.nii.gz",
+          flair = "FLAIR.nii.gz")
+```
+
+```{r showfiles, dependson = "makefiles"}
+files
+```
+
+- Data from https://www.nitrc.org/frs/?group_id=187 
+    - testing folder in White_Matter_Lesion_Segmentation_Testdata.zip
+
+
+## Why R?
+
+- Statistical tools are state of the art
+    - SAS/Stata do not currently support imaging 
+- R statistical tools > MATLAB/Python (opinion)
+    - maybe not machine learning (scikit-learn)
+- Statistics programs commonly teach it
+- Packages have been developed for imaging
+
+
+
+## oro.nifti (Brandon Whitcher, CRAN)
+
+- Can read/write NIfTI/ANALYZE files
+- Implements the `nifti` object (S4)
+    - Use it like an array
+    - Includes meta data relevant to images
+- Has useful plotting functions `image.nifti`, `orthographic`
+
+<div class = "left-half">
+<img src="myproc_files/figure-html/image-1.png" style="width:80%">
+</div>
+<div class = "right-half">
+<img src="myproc_files/figure-html/ortho-1.png" style="width:100%">
+</div>
+
+## fslr (me, CRAN)
+
+- Relies **heavily** on the `nifti` object
+- Wraps FSL - a popular neuroimaging suite
+    - `fslmaths` - image manipulation
+    - `fslstats` - image statistics
+    - `fslbet` - brain extraction/skull stripping
+- Adds some plotting functionality `ortho2`, `double_ortho`
+
+<img src="myproc_files/figure-html/bias_double-1.png" style="width:38%">
+
+
+
+## Basics: Read in the Files!
+
+fslr: `readnii` wraps `oro.nifti::readNIfTI`:
+```{r read_t1, message=FALSE}
+library(fslr)
+base_t1 = readnii(files["t1"])
+print(base_t1)
+```
+
+```{r read_t1_run, results='hide', echo = FALSE, message = FALSE}
+base_t1 = robust_window(base_t1)
+```
+
+```{r fslsmooth, results='hide', echo = FALSE, message = FALSE}
+smooth = fslsmooth(base_t1, sigma = 5)
+ortho2(smooth, NA.x = TRUE, crosshairs = FALSE, add.orient = FALSE)
+```
+
+
+## Orthographic View
+
+```{r ortho, message=FALSE, fig.height = 4, fig.width= 6, dependson = "read_t1_run"}
+library(fslr)
+ortho2(base_t1)
+```
+
+## Image Slices
+
+```{r image, message=FALSE, dependson = "read_t1_run"}
+image(base_t1, z = 55, plot.type = "single")
+```
+
+
+
+## ANTsR (Brian Avants, GitHub)
+
+Located at https://github.com/stnava/ANTsR
+
+- Re-implements ANTs **within R**
+    - Implemented in ITK/C++ (fast)
+    - actively maintained (sometimes lacking documentation)
+- N3/N4 Inhomogeneity correction
+- Registration (Rigid, Affine, Non-linear Diffeomorphic)
+- Reads/writes data using pointers (not in memory)
+    - not as intuitive/not exactly array-like
+
+
+## extrantsr ("extra ANTsR", me, GitHub)
+
+Located at https://github.com/muschelli2/extrantsr
+
+- Wraps `ANTsR` functionality
+    - Allows `nifti` object use
+    - Has `ants2oro` conversion for ANTs images to `nifti`
+- Adds commonly done pipelines for neuroimaging
+- I use this heavily for my imaging analyses
+ 
+ 
+## Bias Field Correction
+
+ANTsR/extrantsr - remove image inhomogeneities
+
+- **`extrantsr::bias_correct`** calls `ANTsR::n4BiasFieldCorrection` [@tustison_n4itk_2010]
+    - EM-like, assumes bias is smooth over space, log transforms the data
+
+```{r bias_corr}
+library(extrantsr)
+n4_t1 = bias_correct(file = base_t1, correction = "N4", retimg = TRUE)
+```
+
+
+## Bias Field Correction: Results
+
+- **`fslr::double_ortho`** shows side-by-side images
+```{r bias_double, fig.height = 5, fig.width = 7, eval = TRUE, echo = FALSE}
+double_ortho(base_t1, robust_window(n4_t1), NA.x = TRUE, add.orient = FALSE, crosshairs = FALSE)
+```
+
+## Ratio shows Intensities Changes
+```{r bias_noshow, fig.height = 4, fig.width= 6, eval = FALSE}
+ratio = finite_img(n4_t1 / base_t1)
+ortho2(n4_t1, ratio, col.y = alpha(hotmetal(), 0.75))
+```
+
+```{r bias, fig.height = 4, fig.width= 6, eval = TRUE, echo = FALSE}
+ratio = finite_img(n4_t1 / base_t1)
+ratio = robust_window(ratio)
+ortho2(robust_window(n4_t1), ratio, col.y = alpha(hotmetal(), 0.75), add.orient = FALSE, crosshairs = FALSE)
+```
+
+
+## Skull Stripping: FSL BET `r #citep("smith_fast_2002")`
+
+```{r bet, message=FALSE}
+t1_skull_stripped = fslbet(n4_t1, outfile = "SS_Image")
+```
+```{r plotbet, echo=FALSE, dependson = "bet", fig.height = 4.5, fig.width= 8}
+dd = dropEmptyImageDimensions(t1_skull_stripped)
+dd = robust_window(dd, probs = c(0, .99))
+ortho2(dd, NA.x = TRUE, crosshairs = FALSE, add.orient = FALSE)
+```
+
+
+
+
+
+## Re-remove bias field (N4-right)
+
+```{r n4bet, message=FALSE, echo = FALSE}
+n4_ss = bias_correct(t1_skull_stripped, correction = "N4", mask = t1_skull_stripped > 0)
+```
+
+
+```{r n4bet_double, message=FALSE, echo = FALSE, fig.height = 5, fig.width= 8}
+dd = dropEmptyImageDimensions(
+  t1_skull_stripped > 0, 
+  other.imgs = list(ss = t1_skull_stripped, n4 = n4_ss))
+dd = dd$other.imgs
+dd$ss = robust_window(dd$ss, probs = c(0, .99))
+dd$n4 = robust_window(dd$n4, probs = c(0, .99))
+double_ortho(dd$ss, dd$n4, NA.x = TRUE, crosshairs = FALSE, add.orient = FALSE)
+```
+
+## Re-remove bias field: Ratio
+
+```{r plotbet_n4, echo=FALSE, dependson = "n4bet", fig.height = 5, fig.width= 8}
+ratio = finite_img(dd$n4 / dd$ss)
+ratio = robust_window(ratio)
+ortho2(dd$n4, ratio, col.y = alpha(hotmetal(), 0.75), crosshairs = FALSE, add.orient = FALSE)
+```
+
+## Tissue-Class Segmentation
+
+ANTsR/extrantsr: uses Atropos [@atropos]
+
+```{r otropos}
+tissue_seg = otropos(a = t1_skull_stripped, x = t1_skull_stripped > 0)
+```
+
+
+
+```{r ortho2_tissue, echo = FALSE, fig.width =7, fig.height=5, include = FALSE}
+dd = dropEmptyImageDimensions(
+  t1_skull_stripped > 0, 
+  other.imgs = list(ss = t1_skull_stripped, seg = tissue_seg$segmentation))
+dd = dd$other.imgs
+dd$ss = robust_window(dd$ss, probs = c(0, .99))
+ortho2(dd$ss, dd$seg, col.y = alpha(hotmetal(), 0.5), crosshairs = FALSE, add.orient = FALSE)
+```
+
+```{r double_ortho_tissue, echo = FALSE, fig.width=6, fig.height=4, dependson = "ortho2_tissue"}
+double_ortho(dd$ss, dd$seg, crosshairs = FALSE, add.orient = FALSE)
+```
+
+
+## Rigid-Body Registration
+
+- `extrantsr::registration` (wraps `ANTsR::antsRegistration`)
+
+<img src="Reg_Figure_Option1_short_within2.png" style="width:60%">
+
+
+```{r flair_t2_bc, results='hide', message = FALSE, echo = FALSE}
+n4_flair = bias_correct(files["flair"], correction = "N4", retimg = TRUE)
+n4_t2 = bias_correct(files["t2"], correction = "N4", retimg = TRUE)
+```
+
+## Rigid-Body Registration
+
+```{r ants_reg, results='hide', message = FALSE}
+ants_reg_flair = registration(filename = n4_flair, 
+  template.file = n4_t1, typeofTransform = "Rigid")
+```
+
+```{r write_trans, echo = FALSE, include= FALSE, dependson = "ants_reg"}
+output = "reg0GenericAffine.mat"
+file.copy(ants_reg_flair$fwdtransforms, output, overwrite = TRUE)
+ants_reg_flair$fwdtransforms = output
+```
+
+```{r double_ortho_run, echo = FALSE, fig.width=8, fig.height=6}
+flair = mask_img( ants_reg_flair$outfile, t1_skull_stripped > 0)
+dd = dropEmptyImageDimensions(t1_skull_stripped > 0,
+                              other.imgs = list(t1 = t1_skull_stripped, flair = flair))$other.imgs
+dd = lapply(dd, robust_window, probs = c(0, .99))
+t1_image = dd$t1
+flair_image = dd$flair
+```
+
+```{r double_ortho, echo = FALSE, fig.width=8, fig.height=4.5, dependson = "double_ortho_run"}
+double_ortho(t1_image, flair_image)
+```
+
+## Joint Distribution of FLAIR and T1
+
+```{r make_df, echo = FALSE, fig.width=8, fig.height=5.5}
+library(ggplot2)
+set.seed(20160405)
+library(RColorBrewer)
+rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))
+r <- rf(32)
+transparent_legend =  theme(
+  legend.background = element_rect(fill = "transparent"),
+  legend.key = element_rect(fill = "transparent", 
+                            color = "transparent")
+)
+df = data.frame(t1 = t1_skull_stripped[ t1_skull_stripped > 0 ],
+                flair = ants_reg_flair$outfile[ t1_skull_stripped > 0 ],
+                stringsAsFactors = FALSE)
+s = df[ sample(nrow(df), size = 2e5), ]
+q = qplot(t1, flair, data = s, geom = "bin2d", bins = 100) + 
+  scale_fill_gradientn(colours = r, name = "# Voxels") + 
+  geom_smooth(se = FALSE, colour = "red") + 
+  theme_grey(base_size = 25) + labs(x = "T1 Intensity", y = "FLAIR Intensity") 
+q = q + theme(legend.position = c(0.91, 0.52), 
+              legend.key.height = unit(.12, units = "npc") ) + 
+  transparent_legend
+print(q)
+```
+
+
+
+## Non-linear Registration: T1 to MNI
+
+<img src="Reg_Figure_Option1_nonlinear_short.png" style="width:80%">
+
+```{r ants_reg_syn, results='hide', echo = FALSE, message = FALSE}
+brain = mni_img(mm = "1", brain = TRUE)
+img = brain > 0
+orig_img = mni_img()
+filler = function(img, kdim = c(20, 20, 20)){
+    filled = img %>% 
+    zero_pad(kdim = kdim) %>% 
+    oMath("MD", 7, retfile = TRUE) %>% 
+    oMath("ME", 7, retfile = FALSE) %>% 
+    zero_pad(kdim = kdim, invert = TRUE) 
+
+}
+filled = filler(img)
+
+# template.file = mni_fname(mm = "1", brain = TRUE)
+# 
+# template.file = readnii(template.file)
+template.file = mask_img(orig_img, filled)
+
+# template.mask = gsub("[.]nii", "_mask.nii", mni_fname(mm = "1", brain = TRUE))
+# template.mask = readnii(template.mask)
+
+template.mask = filled
+
+template.file = dropEmptyImageDimensions(template.mask, 
+                                         other.imgs = template.file)
+template.mask = template.file$outimg
+template.file = template.file$other.imgs
+ss_t1_to_mni = registration(
+  filename = t1_skull_stripped, 
+  template.file = template.file, 
+  typeofTransform = "SyN", remove.warp = FALSE,
+  outprefix = "temp")
+```
+
+```{r ants_reg_syn_show, eval = FALSE, message = FALSE}
+template.file = fslr::mni_fname(mm = "1", brain = TRUE)
+ss_t1_to_mni = registration(filename = t1_skull_stripped, 
+  template.file = template.file, typeofTransform = "SyN")
+```
+
+
+- Uses Symmetric Normalization (SyN) [@avants_symmetric_2008]
+
+
+
+## Non-linear Registration Results
+```{r ants_reg_syn_ers, results='hide', message = FALSE, dependson="ants_reg_syn", fig.width=8, fig.height=6, echo = FALSE}
+outfile = mask_img(ss_t1_to_mni$outfile, template.mask)
+double_ortho(template.file, outfile)
+```
+
+
+
+
+## fMRI 
+- `fsl_slicetimer` - slice timing correction
+- `ANTsR::preprocessfMRI` 
+- `spm12r` 
+    - slice timing correction
+    - realignment - get motion correction parameters
+    - co-registration
+    - segmentation/normalization to a template
+
+
+# What Else Do We Need?
+
+## Bibliography
+
+

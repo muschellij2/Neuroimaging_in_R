@@ -1,7 +1,8 @@
 ---
 title: "Processing Neuroimaging Data in R: Capabilities"
+subtitle: 'https://github.com/muschellij2/Neuroimaging_in_R'
 author: "John Muschelli http://johnmuschelli.com/Neuroimaging_in_R"
-date: "February 19, 2015"
+date: "April 10, 2016"
 bibliography: "index.bib"
 output:
   ioslides_presentation:
@@ -73,28 +74,34 @@ files = c(t1 = "T1.nii.gz",
 files
 ```
 
-## Starting from Raw Data
+## Starting from Raw Data/DICOM
 
 - `oro.dicom` - read/write DICOM data, the nifti object
     - Pure R implementation
 - `dcm2niir` - uses `dcm2nii` from Chris Rorden
-    - Can handle Par/Rec and many scanner types
-- `matlabr` - could use `dicomread` matlab code and excecute through R
+    - Handles **MANY** scanner types
+    - Located at https://github.com/muschellij2/dcm2niir
+- `matlabr` - could use `dicomread` MATLAB code and excecute through R
+    - Located at https://github.com/muschellij2/matlabr
 
 
 ## Introduction: Packages
 Medical Imaging Task View
 
-- `oro.nifti`: read/write data, the nifti object
-- `fslr`: process data (need FSL for most of the functionality)
-- **`ANTsR`: process data (full toolbox)**
-- **`extrantsr`: makes ANTsR work with nifti objects**
 - `dti` - adaptive smoothing and diffusion tensor tools
 
 - `fmri` - post-processing analysis: linear models and p-value smoothing
 - `AnalyzeFMRI` - fMRI analysis (last updated in 2013)
 - `spm12r` package calls out MATLAB using SPM 
 
+## Introduction: Packages used Here
+Medical Imaging Task View
+
+- `oro.nifti`: read/write data, the nifti object
+- `fslr`: process data (need FSL for most of the functionality)
+- **`ANTsR`: process data (full toolbox)**
+    - Located at https://github.com/stnava/ANTsR
+- **`extrantsr`: makes ANTsR work with nifti objects**
 
 
 ## Basics: Read in the Files!
@@ -105,32 +112,36 @@ library(fslr)
 base_t1 = readnii(files["t1"])
 ```
 
+```{r read_t1_run, results='hide', echo = FALSE, message = FALSE}
+base_t1 = robust_window(base_t1)
+```
+
 - like an array
 - ANTsR uses pointers (faster), but not as intuitive
 
 ## Orthographic View
 
-```{r ortho, message=FALSE, fig.height = 4, fig.width= 6}
+```{r ortho, message=FALSE, fig.height = 4, fig.width= 6, dependson = "read_t1_run"}
 library(fslr)
 fslr::ortho2(base_t1)
 ```
 
 ## Orthographic Overlays
 
-```{r ortho_overlay_noalpha, message=FALSE, fig.height = 4, fig.width= 6}
+```{r ortho_overlay_noalpha, message=FALSE, fig.height = 4, fig.width= 6, dependson = "read_t1_run"}
 over_50 = mask_img(base_t1, base_t1 > 40); ortho2(base_t1, over_50)
 ```
 
 ## Image Slices
 
-```{r image, message=FALSE}
+```{r image, message=FALSE, dependson = "read_t1_run"}
 image(base_t1, z = 55, plot.type = "single")
 ```
 
 
 ## Slice Overlays
 
-```{r overlay, message=FALSE}
+```{r overlay, message=FALSE, dependson = "read_t1_run"}
 over_50[over_50 <= 0] = NA; over_50 = cal_img(over_50)
 overlay(base_t1, over_50, z = 55, plot.type = "single")
 ```
@@ -138,7 +149,7 @@ overlay(base_t1, over_50, z = 55, plot.type = "single")
 
 ## Cropped Image Slices
 
-```{r cropped_ortho1, message=FALSE, echo = FALSE, fig.width=5, fig.height=5}
+```{r cropped_ortho1, message=FALSE, echo = FALSE, fig.width=5, fig.height=5, dependson = "read_t1_run"}
 mask = oMask(base_t1)
 mask = oMath(mask, "MD", 7)
 cropped = dropEmptyImageDimensions(mask, other.imgs = base_t1)$other.imgs
@@ -165,9 +176,15 @@ bc_t1 = fsl_biascorrect(file = base_t1)
 ```
 
 ## Bias Field Correction: Results
-```{r bias, fig.height = 4, fig.width= 6}
+```{r bias_noshow, fig.height = 4, fig.width= 6, eval = FALSE}
 ratio = finite_img(n4_t1 / base_t1)
-ortho2(n4_t1, ratio, col.y = alpha(hotmetal(), 0.5))
+ortho2(n4_t1, ratio, col.y = alpha(hotmetal(), 0.75))
+```
+
+```{r bias, fig.height = 4, fig.width= 6, eval = TRUE, echo = FALSE}
+ratio = finite_img(n4_t1 / base_t1)
+ratio = robust_window(ratio)
+ortho2(robust_window(n4_t1), ratio, col.y = alpha(hotmetal(), 0.75))
 ```
 
 
@@ -307,65 +324,13 @@ double_ortho(template.file, outfile)
 ```
 
 
-## Applying Registration Transformations
-
-```{r applying_trans, results='hide', message = FALSE, dependson="ants_reg_syn", echo = FALSE}
-flair = mask_img(ants_reg_flair$outfile, ss_t1 > 0)
-reg_flair_to_mni = ants_apply_transforms(
-  fixed = template.file, 
-  moving = flair, # registered FLAIR
-  interpolator = "Linear",
-  transformlist = ss_t1_to_mni$fwdtransforms )
-```
-
-```{r applying_trans_show, results='hide', message = FALSE, eval = FALSE}
-reg_flair_to_mni = ants_apply_transforms(
-  fixed = template.file, 
-  moving = ants_reg_flair$outfile, # registered FLAIR
-  interpolator = "Linear",
-  transformlist = ss_t1_to_mni$fwdtransforms )
-```
-
-## Non-linear Transformation of FLAIR
-```{r ants_reg_syn_res_flair, results='hide', message = FALSE, dependson="applying_trans", fig.width=8, fig.height=4, echo = FALSE}
-double_ortho(template.file, reg_flair_to_mni, xyz = floor(dim(template.file)/2) + c(-2, -5, 0))
-```
-
-## Preprocess MRI: within a visit
-
-We can develop pipelines/full analyses!
-
-`extrantsr::preprocess_mri_within` will do inhomogeneity correction, skull strip (or mask), and register to the first scan.
-
-```{r preproc_within, eval=FALSE, dependson = c("makefiles", "bet")}
-proc_images = preprocess_mri_within(
-  files = files[c("t1", "t2", "pd", "flair")], 
-  maskfile = ss_t1 > 0)
-```
-
-## Preprocess MRI: across visits
-
-`preprocess_mri_across` combines `preprocess_mri_within` and `registration`.  If you had baseline/follow-up data:
-```{r preproc_across, eval=FALSE}
-outfiles = gsub("[.]nii", '_process.nii', files)
-preprocess_mri_across(
-  baseline_files, followup_files,
-  baseline_outfiles, followup_outfiles,
-  maskfile)
-```
-
-<img src="Reg_Figure_Option1_short_across.png" style="width:80%">
-
-
-
 ## Tissue-Class Segmentation
 <div class = "col2">
 ANTsR/extrantsr: uses Atropos [@atropos]
 
 - `ANTsR` - `atropos`, `extrantsr` - `otropos` 
 ```{r otropos}
-tissue_seg = otropos(
-  a = ss_t1,
+tissue_seg = otropos(a = ss_t1,
   x = mask)
 ```
 
@@ -380,9 +345,8 @@ See alos `spm12r_segment`
 
 <div>
 
-## ANTsR Tissue-Class Segmentation 
 
-```{r ortho2_tissue, echo = FALSE, fig.width =7, fig.height=5}
+```{r ortho2_tissue, echo = FALSE, fig.width =7, fig.height=5, include = FALSE}
 dd = dropEmptyImageDimensions(
   ss_t1 > 0, 
   other.imgs = list(ss = ss_t1, seg = tissue_seg$segmentation))

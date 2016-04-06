@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Processing Neuroimaging Data in R: Capabilities</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="generator" content="pandoc" />
+
+
+
+  <meta name="date" content="2016-04-10" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <link rel="stylesheet" media="all" href="myproc_files/ioslides-13.5.1/fonts/fonts.css">
+
+  <link rel="stylesheet" media="all" href="myproc_files/ioslides-13.5.1/theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="myproc_files/ioslides-13.5.1/theme/css/phone.css">
+
+  <base target="_blank">
+
+  <script type="text/javascript">
+    var SLIDE_CONFIG = {
+      // Slide settings
+      settings: {
+                title: 'Processing Neuroimaging Data in R: Capabilities',
+                        subtitle: '<a href="https://github.com/muschellij2/Neuroimaging_in_R" class="uri">https://github.com/muschellij2/Neuroimaging_in_R</a>',
+                useBuilds: true,
+        usePrettify: true,
+        enableSlideAreas: true,
+        enableTouch: true,
+              },
+
+      // Author information
+      presenters: [
+            {
+        name:  'John Muschelli <a href="http://johnmuschelli.com/Neuroimaging_in_R" class="uri">http://johnmuschelli.com/Neuroimaging_in_R</a>' ,
+        company: '',
+        gplus: '',
+        twitter: '',
+        www: '',
+        github: ''
+      },
+            ]
+    };
+  </script>
+
+  <style type="text/css">
+
+    b, strong {
+      font-weight: bold;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    slides > slide {
+      -webkit-transition: all 0.4s ease-in-out;
+      -moz-transition: all 0.4s ease-in-out;
+      -o-transition: all 0.4s ease-in-out;
+      transition: all 0.4s ease-in-out;
+    }
+
+    .auto-fadein {
+      -webkit-transition: opacity 0.6s ease-in;
+      -webkit-transition-delay: 0.4s;
+      -moz-transition: opacity 0.6s ease-in 0.4s;
+      -o-transition: opacity 0.6s ease-in 0.4s;
+      transition: opacity 0.6s ease-in 0.4s;
+      opacity: 0;
+    }
+
+  </style>
+
+  <link rel="stylesheet" href="john.css" type="text/css" />
+
+  <link rel="stylesheet" type="text/css" href="papaya.css?version=0.8&build=979" />
+    <script type="text/javascript" src="papaya.js?version=0.8&build=979">
+      
+    </script>
+      <script type="text/javascript"> 
+        var params = []; 
+        params["images"] = ["T1.nii.gz"]; 
+        </script>
+
+</head>
+
+<body style="opacity: 0">
+
+<slides>
+
+  <slide class="title-slide segue nobackground">
+        <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 data-config-title><!-- populated from slide_config.json --></h1>
+      <h2 data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p data-config-presenter><!-- populated from slide_config.json --></p>
+            <p style="margin-top: 6px; margin-left: -2px;">April 10, 2016</p>
+          </hgroup>
+  </slide>
+
+<slide class=''><hgroup><h2>Data used from NITRC</h2></hgroup><article  id="data-used-from-nitrc">
+
+<p>Multi-sequence MRI dataset from HAMMER, (NIfTI conversion from ANALYZE).</p>
+
+<ul>
+<li>Using 3 MRI sequences: <strong>T1-weighted, T2-weighted, FLAIR</strong></li>
+</ul>
+
+<pre class = 'prettyprint lang-r'>files
+            t1             t2          flair 
+   &quot;T1.nii.gz&quot;    &quot;T2.nii.gz&quot; &quot;FLAIR.nii.gz&quot; </pre>
+
+<ul>
+<li>Data from <a href='https://www.nitrc.org/frs/?group_id=187' title=''>https://www.nitrc.org/frs/?group_id=187</a>
+
+<ul>
+<li>testing folder in White_Matter_Lesion_Segmentation_Testdata.zip</li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Why R?</h2></hgroup><article  id="why-r">
+
+<ul>
+<li>Statistical tools are state of the art
+
+<ul>
+<li>SAS/Stata do not currently support imaging</li>
+</ul></li>
+<li>R statistical tools &gt; MATLAB/Python (opinion)
+
+<ul>
+<li>maybe not machine learning (scikit-learn)</li>
+</ul></li>
+<li>Statistics programs commonly teach it</li>
+<li>Packages have been developed for imaging</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>oro.nifti (Brandon Whitcher, CRAN)</h2></hgroup><article  id="oro.nifti-brandon-whitcher-cran">
+
+<ul>
+<li>Can read/write NIfTI/ANALYZE files</li>
+<li>Implements the <code>nifti</code> object (S4)
+
+<ul>
+<li>Use it like an array</li>
+<li>Includes meta data relevant to images</li>
+</ul></li>
+<li>Has useful plotting functions <code>image.nifti</code>, <code>orthographic</code></li>
+</ul>
+
+<div class="left-half">
+<p><img src="myproc_files/figure-html/image-1.png" style="width:80%"></p></div>
+
+<div class="right-half">
+<p><img src="myproc_files/figure-html/ortho-1.png" style="width:100%"></p></div>
+
+</article></slide><slide class=''><hgroup><h2>fslr (me, CRAN)</h2></hgroup><article  id="fslr-me-cran">
+
+<ul>
+<li>Relies <strong>heavily</strong> on the <code>nifti</code> object</li>
+<li>Wraps FSL - a popular neuroimaging suite
+
+<ul>
+<li><code>fslmaths</code> - image manipulation</li>
+<li><code>fslstats</code> - image statistics</li>
+<li><code>fslbet</code> - brain extraction/skull stripping</li>
+</ul></li>
+<li>Adds some plotting functionality <code>ortho2</code>, <code>double_ortho</code></li>
+</ul>
+
+<p><img src="myproc_files/figure-html/bias_double-1.png" style="width:38%"></p>
+
+</article></slide><slide class=''><hgroup><h2>Basics: Read in the Files!</h2></hgroup><article  id="basics-read-in-the-files">
+
+<p>fslr: <code>readnii</code> wraps <code>oro.nifti::readNIfTI</code>:</p>
+
+<pre class = 'prettyprint lang-r'>library(fslr)
+base_t1 = readnii(files[&quot;t1&quot;])
+print(base_t1)
+NIfTI-1 format
+  Type            : nifti
+  Data Type       : 2 (UINT8)
+  Bits per Pixel  : 8
+  Slice Code      : 0 (Unknown)
+  Intent Code     : 0 (None)
+  Qform Code      : 0 (Unknown)
+  Sform Code      : 0 (Unknown)
+  Dimension       : 256 x 256 x 110
+  Pixel Dimension : 0.94 x 0.94 x 1.5
+  Voxel Units     : mm
+  Time Units      : sec</pre>
+
+<p><img src="myproc_files/figure-html/fslsmooth-1.png" title="" alt="" width="480" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Orthographic View</h2></hgroup><article  id="orthographic-view">
+
+<pre class = 'prettyprint lang-r'>library(fslr)
+ortho2(base_t1)</pre>
+
+<p><img src="myproc_files/figure-html/ortho-1.png" title="" alt="" width="576" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Image Slices</h2></hgroup><article  id="image-slices">
+
+<pre class = 'prettyprint lang-r'>image(base_t1, z = 55, plot.type = &quot;single&quot;)</pre>
+
+<p><img src="myproc_files/figure-html/image-1.png" title="" alt="" width="480" /></p>
+
+</article></slide><slide class=''><hgroup><h2>ANTsR (Brian Avants, GitHub)</h2></hgroup><article  id="antsr-brian-avants-github">
+
+<p>Located at <a href='https://github.com/stnava/ANTsR' title=''>https://github.com/stnava/ANTsR</a></p>
+
+<ul>
+<li>Re-implements ANTs <strong>within R</strong>
+
+<ul>
+<li>Implemented in ITK/C++ (fast)</li>
+<li>actively maintained (sometimes lacking documentation)</li>
+</ul></li>
+<li>N3/N4 Inhomogeneity correction</li>
+<li>Registration (Rigid, Affine, Non-linear Diffeomorphic)</li>
+<li>Reads/writes data using pointers (not in memory)
+
+<ul>
+<li>not as intuitive/not exactly array-like</li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>extrantsr (&quot;extra ANTsR&quot;, me, GitHub)</h2></hgroup><article  id="extrantsr-extra-antsr-me-github">
+
+<p>Located at <a href='https://github.com/muschelli2/extrantsr' title=''>https://github.com/muschelli2/extrantsr</a></p>
+
+<ul>
+<li>Wraps <code>ANTsR</code> functionality
+
+<ul>
+<li>Allows <code>nifti</code> object use</li>
+<li>Has <code>ants2oro</code> conversion for ANTs images to <code>nifti</code></li>
+</ul></li>
+<li>Adds commonly done pipelines for neuroimaging</li>
+<li>I use this heavily for my imaging analyses</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Bias Field Correction</h2></hgroup><article  id="bias-field-correction">
+
+<p>ANTsR/extrantsr - remove image inhomogeneities</p>
+
+<ul>
+<li><strong><code>extrantsr::bias_correct</code></strong> calls <code>ANTsR::n4BiasFieldCorrection</code> <span class="cite">(N. J. Tustison et al. 2010)</span>
+
+<ul>
+<li>EM-like, assumes bias is smooth over space, log transforms the data</li>
+</ul></li>
+</ul>
+
+<pre class = 'prettyprint lang-r'>library(extrantsr)
+n4_t1 = bias_correct(file = base_t1, correction = &quot;N4&quot;, retimg = TRUE)</pre>
+
+</article></slide><slide class=''><hgroup><h2>Bias Field Correction: Results</h2></hgroup><article  id="bias-field-correction-results">
+
+<ul>
+<li><strong><code>fslr::double_ortho</code></strong> shows side-by-side images <img src="myproc_files/figure-html/bias_double-1.png" title="" alt="" width="672" /></li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Ratio shows Intensities Changes</h2></hgroup><article  id="ratio-shows-intensities-changes">
+
+<pre class = 'prettyprint lang-r'>ratio = finite_img(n4_t1 / base_t1)
+ortho2(n4_t1, ratio, col.y = alpha(hotmetal(), 0.75))</pre>
+
+<p><img src="myproc_files/figure-html/bias-1.png" title="" alt="" width="576" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Skull Stripping: FSL BET</h2></hgroup><article  id="skull-stripping-fsl-bet">
+
+<pre class = 'prettyprint lang-r'>t1_skull_stripped = fslbet(n4_t1, outfile = &quot;SS_Image&quot;)</pre>
+
+<p><img src="myproc_files/figure-html/plotbet-1.png" title="" alt="" width="768" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Re-remove bias field (N4-right)</h2></hgroup><article  id="re-remove-bias-field-n4-right">
+
+<p><img src="myproc_files/figure-html/n4bet_double-1.png" title="" alt="" width="768" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Re-remove bias field: Ratio</h2></hgroup><article  id="re-remove-bias-field-ratio">
+
+<p><img src="myproc_files/figure-html/plotbet_n4-1.png" title="" alt="" width="768" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Tissue-Class Segmentation</h2></hgroup><article  id="tissue-class-segmentation">
+
+<p>ANTsR/extrantsr: uses Atropos <span class="cite">(Brian B Avants et al. 2011)</span></p>
+
+<pre class = 'prettyprint lang-r'>tissue_seg = otropos(a = t1_skull_stripped, x = t1_skull_stripped &gt; 0)</pre>
+
+<p><img src="myproc_files/figure-html/double_ortho_tissue-1.png" title="" alt="" width="576" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Rigid-Body Registration</h2></hgroup><article  id="rigid-body-registration">
+
+<ul>
+<li><code>extrantsr::registration</code> (wraps <code>ANTsR::antsRegistration</code>)</li>
+</ul>
+
+<p><img src="Reg_Figure_Option1_short_within2.png" style="width:60%"></p>
+
+</article></slide><slide class=''><hgroup><h2>Rigid-Body Registration</h2></hgroup><article  id="rigid-body-registration-1">
+
+<pre class = 'prettyprint lang-r'>ants_reg_flair = registration(filename = n4_flair, 
+  template.file = n4_t1, typeofTransform = &quot;Rigid&quot;)</pre>
+
+<p><img src="myproc_files/figure-html/double_ortho-1.png" title="" alt="" width="768" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Joint Distribution of FLAIR and T1</h2></hgroup><article  id="joint-distribution-of-flair-and-t1">
+
+<p><img src="myproc_files/figure-html/make_df-1.png" title="" alt="" width="768" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Non-linear Registration: T1 to MNI</h2></hgroup><article  id="non-linear-registration-t1-to-mni">
+
+<p><img src="Reg_Figure_Option1_nonlinear_short.png" style="width:80%"></p>
+
+<pre class = 'prettyprint lang-r'>template.file = fslr::mni_fname(mm = &quot;1&quot;, brain = TRUE)
+ss_t1_to_mni = registration(filename = t1_skull_stripped, 
+  template.file = template.file, typeofTransform = &quot;SyN&quot;)</pre>
+
+<ul>
+<li>Uses Symmetric Normalization (SyN) <span class="cite">(B. B. Avants et al. 2008)</span></li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Non-linear Registration Results</h2></hgroup><article  id="non-linear-registration-results">
+
+<p><img src="myproc_files/figure-html/ants_reg_syn_ers-1.png" title="" alt="" width="768" /></p>
+
+</article></slide><slide class=''><hgroup><h2>fMRI</h2></hgroup><article  id="fmri">
+
+<ul>
+<li><code>fsl_slicetimer</code> - slice timing correction</li>
+<li><code>ANTsR::preprocessfMRI</code></li>
+<li><code>spm12r</code>
+
+<ul>
+<li>slice timing correction</li>
+<li>realignment - get motion correction parameters</li>
+<li>co-registration</li>
+<li>segmentation/normalization to a template</li>
+</ul></li>
+</ul>
+
+</article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>What Else Do We Need?</h2></hgroup><article  id="what-else-do-we-need">
+
+</article></slide><slide class=''><hgroup><h2>Bibliography</h2></hgroup><article  id="bibliography" class="unnumbered">
+
+<div id="refs" class="references">
+<div id="ref-avants_symmetric_2008">
+<p>Avants, B. B., C. L. Epstein, M. Grossman, and J. C. Gee. 2008. “Symmetric Diffeomorphic Image Registration with Cross-Correlation: Evaluating Automated Labeling of Elderly and Neurodegenerative Brain.” <em>Medical Image Analysis</em>, Special issue on the third international workshop on biomedical image registration - WBIR 2006, 12 (1): 26–41. doi:<a href='https://doi.org/10.1016/j.media.2007.06.004' title=''>10.1016/j.media.2007.06.004</a>.</p></div>
+
+<div id="ref-atropos">
+<p>Avants, Brian B, Nicholas J Tustison, Jue Wu, Philip A Cook, and James C Gee. 2011. “An Open Source Multivariate Framework for N-Tissue Segmentation with Evaluation on Public Data.” <em>Neuroinformatics</em> 9 (4). Springer: 381–400.</p></div>
+
+<div id="ref-tustison_n4itk_2010">
+<p>Tustison, Nicholas J., Brian B. Avants, Philip A. Cook, Yuanjie Zheng, Alexander Egan, Paul A. Yushkevich, and James C. Gee. 2010. “N4ITK: Improved N3 Bias Correction.” <em>IEEE Transactions on Medical Imaging</em> 29 (6): 1310–20. doi:<a href='https://doi.org/10.1109/TMI.2010.2046908' title=''>10.1109/TMI.2010.2046908</a>.</p></div></div></article></slide>
+
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<script src="myproc_files/ioslides-13.5.1/js/modernizr.custom.45394.js"></script>
+<script src="myproc_files/ioslides-13.5.1/js/prettify/prettify.js"></script>
+<script src="myproc_files/ioslides-13.5.1/js/prettify/lang-r.js"></script>
+<script src="myproc_files/ioslides-13.5.1/js/prettify/lang-yaml.js"></script>
+<script src="myproc_files/ioslides-13.5.1/js/hammer.js"></script>
+<script src="myproc_files/ioslides-13.5.1/js/slide-controller.js"></script>
+<script src="myproc_files/ioslides-13.5.1/js/slide-deck.js"></script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+<!-- map slide visiblity events into shiny -->
+<script>
+  (function() {
+    if (window.jQuery) {
+       window.jQuery(document).on('slideleave', function(e) {
+         window.jQuery(e.target).trigger('hidden');
+      });
+       window.jQuery(document).on('slideenter', function(e) {
+         window.jQuery(e.target).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>
