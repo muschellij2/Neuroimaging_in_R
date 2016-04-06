@@ -129,8 +129,28 @@ ortho2(base_t1)
 
 ## Image Slices
 
-```{r image, message=FALSE, dependson = "read_t1_run"}
+```{r image_show, message=FALSE, eval = FALSE, dependson = "read_t1_run"}
 image(base_t1, z = 55, plot.type = "single")
+```
+
+```{r image, message=FALSE, echo = FALSE, dependson = "read_t1_run"}
+q = quantile(c(base_t1), probs = 0.9)
+human_mask = base_t1 > q
+
+dd = dropEmptyImageDimensions(
+  human_mask, 
+  other.imgs = list(ss = base_t1))
+ss = dd$other.imgs
+ss = robust_window(ss, probs = c(0, .99))
+z = floor(dim(ss)[3]/2)
+i = ss[,,z]
+bad = colSums(i > q)
+i = i[, bad > 0]
+bad = rowSums(i > q)
+i = i[bad > 0, ]
+i = copyNIfTIHeader(ss, i)
+image(i, z = 1, plot.type = "single")
+rm(list=c("ss", "z", "dd"))
 ```
 
 
