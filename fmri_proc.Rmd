@@ -7,6 +7,7 @@ bibliography: "index.bib"
 output:
   ioslides_presentation:
     self_contained: false
+    widescreen: true
     includes:
       in_header: header.html
     css: john.css
@@ -14,6 +15,7 @@ output:
     fig_height: 5
   slidy_presentation:
     self_contained: false
+    widescreen: true
     includes:
       in_header: header.html
     css: john.css
@@ -124,10 +126,10 @@ files
 - Has useful plotting functions `image.nifti`, `orthographic`
 
 <div class = "left-half">
-<img src="myproc_files/figure-html/image-1.png" style="width:80%">
+<img src="myproc_files/figure-html/image-1.png" style="width:70%">
 </div>
 <div class = "right-half">
-<img src="myproc_files/figure-html/ortho-1.png" style="width:100%">
+<img src="myproc_files/figure-html/ortho-1.png" style="width:90%">
 </div>
 
 
@@ -156,15 +158,15 @@ Requires MATLAB (installs SPM to R library)
     - `fslbet` - brain extraction/skull stripping
 - Adds some plotting functionality `ortho2`, `double_ortho`
 
-<img src="myproc_files/figure-html/bias_double-1.png" style="width:38%">
+<img src="myproc_files/figure-html/bias_double-1.png" style="width:40%">
 
 ## `fslr` (me, CRAN)
 
-<div style='font-size: 26pt;'>
+<div style='font-size: 28pt;'>
 - `fsl_slicetimer` - slices are not taken instantaneously
 - `mcflirt` - people move
 - `flirt` - structural imaging is higher resolution
-- `fast` - where's the gray matter?
+- `fast` - where's the gray matter? (not that fast)
 - `flirt`+`fnirt` - brains look better in MNI
 - `fslsmooth` - turn that noise down
 
@@ -194,10 +196,7 @@ rm(list="img")
 tr = 2 # 2 seconds
 first_scan = floor(10.0 / tr) + 1 # 10 seconds "stabilization of signal"
 img = subset_4d(img, first_scan:ntim(img))
-aimg = fsl_slicetimer(functional, 
-                      tr = 2, 
-                      indexing = "up",
-                      acq_order = "contiguous")
+aimg = fsl_slicetimer(img, tr = 2, indexing = "up", acq_order = "contiguous")
 print(dim(aimg))
 ```
 
@@ -239,6 +238,7 @@ if (file.exists(afilename)) {
 rm(list = c("aimg", "img"))
 ```
 
+
 ```{r print_daimg, message=FALSE, echo = FALSE}
 daimg = sapply(paste0("dim", 1:4), 
                function(x) {
@@ -246,24 +246,39 @@ daimg = sapply(paste0("dim", 1:4),
                })
 daimg = as.numeric(daimg)
 print(daimg)
+
+pdim = sapply(paste0("pixdim", 1:3), 
+               function(x) {
+                 fslval(file = afilename, keyword = x)
+               })
+pdim = as.numeric(pdim)
 ```
+
+```{r pixdim_show, eval = FALSE}
+print(voxdim(aimg))
+```
+
+```{r pixdim_run, echo = FALSE, dependson="print_daimg"}
+print(pdim)
+```
+
 
 ## Orthographic View
 
 
-```{r ortho, message=FALSE, fig.height = 4, fig.width= 6, dependson = "med_img_run", eval = FALSE}
+```{r ortho, message=FALSE, dependson = "med_img_run", eval = FALSE}
 library(fslr); median_image = apply(aimg, c(1, 2, 3), median)
 ortho2(median_image)
 ```
 
 
-```{r med_img_run, echo = FALSE}
+```{r med_img_run, echo = FALSE, fig.height = 3.5, fig.width = 8}
 median_image = stat_img(afilename, func = "median")
 median_image = robust_window(median_image)
 median_image = mask_img(median_image, 
                         median_image > mean(median_image))
 median_image = dropEmptyImageDimensions(median_image)
-ortho2(median_image)
+ortho2(median_image, NA.x = TRUE, crosshairs = FALSE, add.orient = FALSE)
 ```
 
 ## Image Slice View
@@ -277,14 +292,20 @@ image(median_image, z = 18, plot.type = "single")
 
 Located at https://github.com/stnava/ANTsR
 
-- Re-implements ANTs **within R**
-    - Implemented in ITK/C++ (fast)
+- Re-implements ANTs **within R** using ITK/C++ (fast)
     - actively maintained (sometimes lacking documentation)
-- N3/N4 Inhomogeneity correction
-- Registration (Rigid, Affine, Non-linear Diffeomorphic)
+
+<div class = "left-half">
+
+- N3/N4 Inhomogeneity correction 
+- Image Registration  
 - Reads/writes data using pointers (not in memory)
     - not as intuitive/not exactly array-like
-
+</div>
+<div class = "right-half"> 
+<img src="Reg_Figure_Option1_nonlinear_short.png" style="width:75%">
+<img src="bias_slice.png" style="width:40%">
+</div> 
 
 ## extrantsr ("extra ANTsR", me, GitHub)
 
@@ -296,6 +317,8 @@ Located at https://github.com/muschelli2/extrantsr
 - Adds commonly done pipelines for neuroimaging
 - I use this heavily for my imaging analyses
  
+<img src="Reg_Figure_Option1_short_across.png" style="width:60%">
+
 
 
 ## Motion Correction/Calculation
@@ -305,10 +328,8 @@ Located at https://github.com/muschelli2/extrantsr
 
 
 ```{r motion_corr_show, eval = FALSE}
-motionCorrectionResults = antsMotionCalculation(boldImage, 
-                        fixed = average_image, 
-                        moreaccurate = 1,
-                        txtype = "Rigid")
+motionCorrectionResults = antsMotionCalculation(
+  boldImage, fixed = average_image, txtype = "Rigid")
 ```
 
 ```{r motion_corr_run, echo = FALSE, message=FALSE, dependson="slice_timing_run"}
@@ -360,22 +381,36 @@ moco_params = moco_params %>%
     select(starts_with("MOCO"))
 nuisanceVariables = moco_params
 mp = round(moco_params, 4)
-print(head(mp, 3))
+# print(head(mp, 3))
 rm(list = c("mp"))
+```
+
+```{r moco_run_plot, echo = FALSE, fig.height = 4, fig.width= 8, dependson="motion_corr_run"}
+mp = moco_params
+mp[, 1:3] = mp[, 1:3] * 50
+r = range(mp)
+plot(mp[,1], type = "l", xlab = "Scan Number", main = "Motion Parameters",
+     ylab = "Displacement (mm)",
+     ylim = r * 1.25, 
+     lwd = 2,
+     cex.main = 2,
+     cex.lab = 1.5,
+     cex.axis = 1.25)
+for (i in 2:ncol(mp)) {
+  lines(mp[, i], col = i)
+}
+rm(list = "mp")
 ```
 
 ## Let's Make a Matrix!
 
-`timeseries2matrix` does what the name says
+`timeseries2matrix` creates $T\times V$ matrix, $V$ voxels in mask
 ```{r ts_show, echo = TRUE, eval = FALSE}
 averageImage = getAverageOfTimeSeries(moco_img)
-boldMatrix = timeseries2matrix(img = moco_img, 
-    mask = averageImage > mean(averageImage))
+boldMatrix = timeseries2matrix(img = moco_img, mask = averageImage > mean(averageImage))
 DVARS = computeDVARS(boldMatrix)
 print(dim(boldMatrix))
 ```
-
-As you can see, the matrix is $T\times V$, where $V$ are all the voxels in the mask
 
 ```{r ts_run, echo = FALSE, dependson="motion_corr_run"}
 moco_img = antsImageRead(moco_fname)
@@ -428,18 +463,15 @@ legend(x = 10, y = mult * 1.4,
 # par(mfrow = c(1,1))
 ```
 
-## Nuisance Variables
+## Nuisance Variables: CompCor
 
-`compcor` implements PCA on high-variance voxels [@behzadi2007component]
+`compcor`: PCA on high-variance voxels [@behzadi2007component]
 
 - have to specify number of components
 
 ```{r ccor_show, eval = FALSE}
-compCorNuisanceVariables <- compcor(moco_img, 
-  maskImage, 
-  ncompcor = 6)
-nuisanceVariables <- cbind(moco_params, 
-    compCorNuisanceVariables)
+compCorNuisanceVariables <- compcor(moco_img, maskImage, ncompcor = 6)
+nuisanceVariables <- cbind(moco_params, compCorNuisanceVariables)
 ```
 
 ```{r ccor_run, echo = FALSE, dependson="motion_corr_run"}
@@ -463,7 +495,6 @@ if (all(file.exists(ccor_file))) {
         highvar,
         file = ccor_file)
 }
-
 globalSignal <- rowMeans(boldMatrix)
 
 nuisanceVariables <- cbind(
@@ -473,6 +504,62 @@ nuisanceVariables <- cbind(
 nuisanceVariables = scale(nuisanceVariables)
 nuisance_mod = lm(boldMatrix ~ nuisanceVariables)
 rMatrix <- residuals(nuisance_mod)
+rm(list = "nuisance_mod")
+```
+
+```{r ccor_plot, echo = FALSE, fig.height = 3.5, fig.width= 8, dependson="ccor_run"}
+moco_img = antsImageRead(moco_fname)
+averageImage = getAverageOfTimeSeries(moco_img)
+maskImage = getMask(averageImage, 
+    mean(averageImage), 
+    Inf, cleanup = 2)
+amat = timeseries2matrix(moco_img, maskImage)
+mat = scale(amat[, highvar])
+compcorrsvd <- svd(mat, nu = 6)
+mat = compcorrsvd$u
+r = range(mat)
+plot(mat[, 1], xlab = "Scan Number", 
+     ylab = "PC Intensity", main = paste0("High Variance PCs"),
+     ylim = r, 
+     cex.main = 2,
+     cex.lab = 1.5,
+     cex.axis = 1.25,
+     type = "l"
+     )
+for (i in 2:ncol(mat)) {
+  lines(mat[, i], col = i)
+}
+rm(list = c("mat", "compcorrsvd"))
+```
+
+## Nuisance Variables: CompCor Voxels
+
+```{r ccor_vox, echo = FALSE, fig.height = 5, fig.width= 8, dependson="ccor_plot"}
+moco_img = antsImageRead(moco_fname)
+averageImage = getAverageOfTimeSeries(moco_img)
+maskImage = getMask(averageImage, 
+    mean(averageImage), 
+    Inf, cleanup = 2)
+pc_mask2 = amat
+pc_mask2 = pc_mask2 * 0
+pc_mask2[, highvar] = 1
+pc_mask2 <- matrix2timeseries(
+    moco_img, 
+    maskImage, 
+    pc_mask2)
+pc_mask2 = getAverageOfTimeSeries(pc_mask2)
+m = ants2oro(maskImage)
+a = ants2oro(averageImage)
+p = ants2oro(pc_mask2)
+dd = dropEmptyImageDimensions(m,
+                              other.imgs = list(avg = a,
+                                   pc = p))
+avg_img = dd$other.imgs$avg
+pc_img = dd$other.imgs$pc
+avg_img = robust_window(avg_img, probs = c(0, .99))
+avg_img = mask_img(avg_img, dd$outimg)
+ortho2(avg_img, pc_img, NA.x = TRUE, crosshairs = FALSE, add.orient = FALSE, text = "High Variance Voxels")
+rm(list = c("m", "a", "p", "avg_img", "pc_img", "dd"))
 ```
 
 ## Nuisance Regression and Filtering
@@ -538,16 +625,17 @@ for (i in 2:n) {
 
 ## Filtering the frequencies
 
-- `frequencyFilterfMRI` calls `mFilter::cffilter` to filter the frequencies
+- `frequencyFilterfMRI` calls `mFilter::cffilter`
 
 ```{r filter_show, eval = FALSE}
 rMatrix <- frequencyFilterfMRI(rMatrix, tr = 2, 
-    freqLo = 0.01, freqHi = 0.1, 
-    opt = "trig")
+    freqLo = 0.01, freqHi = 0.1, opt = "trig")
 ```
 
 ```{r filt_nuisance_reg_plot, echo = FALSE, fig.height = 3.5, fig.width= 8, dependson="nuisance_reg_run"}
+par(mfrow = c(1,1))
 mat = rMatrix[, samp]
+class(mat) = "matrix"
 r = range(mat)
 plot(mat[, 1], 
      xlab = "Scan Number", 
@@ -566,7 +654,7 @@ for (i in 2:n) {
 
 ## Smooth Image 
 
-- `smoothImage` smooths using a Gaussian with FWHM (≈ 2 * Pixel Dimensions) 
+- `smoothImage` - Gaussian smoothing FWHM = 6mm$^3$
 
 ```{r smooth_show, eval = FALSE}
 cleanBoldImage <- matrix2timeseries(boldImage, 

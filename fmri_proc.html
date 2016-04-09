@@ -91,7 +91,7 @@
 
 <body style="opacity: 0">
 
-<slides>
+<slides class="layout-widescreen">
 
   <slide class="title-slide segue nobackground">
         <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
@@ -138,7 +138,7 @@
 
 </article></slide><slide class=''><hgroup><h2>Why R?</h2></hgroup><article  id="why-r">
 
-<div style="font-size: 28pt;">
+<div style="font-size: 26pt;">
 <ul>
 <li>Statistical tools are state of the art
 
@@ -182,10 +182,10 @@
 </ul>
 
 <div class="left-half">
-<p><img src="myproc_files/figure-html/image-1.png" style="width:80%"></p></div>
+<p><img src="myproc_files/figure-html/image-1.png" style="width:70%"></p></div>
 
 <div class="right-half">
-<p><img src="myproc_files/figure-html/ortho-1.png" style="width:100%"></p></div>
+<p><img src="myproc_files/figure-html/ortho-1.png" style="width:90%"></p></div>
 
 </article></slide><slide class=''><hgroup><h2><code>spm12r</code> (me, CRAN)</h2></hgroup><article  id="spm12r-me-cran">
 
@@ -215,16 +215,16 @@
 <li>Adds some plotting functionality <code>ortho2</code>, <code>double_ortho</code></li>
 </ul>
 
-<p><img src="myproc_files/figure-html/bias_double-1.png" style="width:38%"></p>
+<p><img src="myproc_files/figure-html/bias_double-1.png" style="width:40%"></p>
 
 </article></slide><slide class=''><hgroup><h2><code>fslr</code> (me, CRAN)</h2></hgroup><article  id="fslr-me-cran-1">
 
-<div style="font-size: 26pt;">
+<div style="font-size: 28pt;">
 <ul>
 <li><code>fsl_slicetimer</code> - slices are not taken instantaneously</li>
 <li><code>mcflirt</code> - people move</li>
 <li><code>flirt</code> - structural imaging is higher resolution</li>
-<li><code>fast</code> - where&#39;s the gray matter?</li>
+<li><code>fast</code> - where&#39;s the gray matter? (not that fast)</li>
 <li><code>flirt</code>+<code>fnirt</code> - brains look better in MNI</li>
 <li><code>fslsmooth</code> - turn that noise down</li>
 </ul></div>
@@ -256,20 +256,21 @@ img = readnii(files[&quot;functional&quot;]);  print(img)</pre>
 <pre class = 'prettyprint lang-r'>tr = 2 # 2 seconds
 first_scan = floor(10.0 / tr) + 1 # 10 seconds &quot;stabilization of signal&quot;
 img = subset_4d(img, first_scan:ntim(img))
-aimg = fsl_slicetimer(functional, 
-                      tr = 2, 
-                      indexing = &quot;up&quot;,
-                      acq_order = &quot;contiguous&quot;)
+aimg = fsl_slicetimer(img, tr = 2, indexing = &quot;up&quot;, acq_order = &quot;contiguous&quot;)
 print(dim(aimg))</pre>
 
 <pre >[1]  80  80  37 205</pre>
+
+<pre class = 'prettyprint lang-r'>print(voxdim(aimg))</pre>
+
+<pre >[1] 3.000000 3.000000 3.972973</pre>
 
 </article></slide><slide class=''><hgroup><h2>Orthographic View</h2></hgroup><article  id="orthographic-view">
 
 <pre class = 'prettyprint lang-r'>library(fslr); median_image = apply(aimg, c(1, 2, 3), median)
 ortho2(median_image)</pre>
 
-<p><img src="fmri_proc_files/figure-html/med_img_run-1.png" title="" alt="" width="480" /></p>
+<p><img src="fmri_proc_files/figure-html/med_img_run-1.png" title="" alt="" width="768" /></p>
 
 </article></slide><slide class=''><hgroup><h2>Image Slice View</h2></hgroup><article  id="image-slice-view">
 
@@ -282,20 +283,26 @@ ortho2(median_image)</pre>
 <p>Located at <a href='https://github.com/stnava/ANTsR' title=''>https://github.com/stnava/ANTsR</a></p>
 
 <ul>
-<li>Re-implements ANTs <strong>within R</strong>
+<li>Re-implements ANTs <strong>within R</strong> using ITK/C++ (fast)
 
 <ul>
-<li>Implemented in ITK/C++ (fast)</li>
 <li>actively maintained (sometimes lacking documentation)</li>
 </ul></li>
+</ul>
+
+<div class="left-half">
+<ul>
 <li>N3/N4 Inhomogeneity correction</li>
-<li>Registration (Rigid, Affine, Non-linear Diffeomorphic)</li>
+<li>Image Registration<br/></li>
 <li>Reads/writes data using pointers (not in memory)
 
 <ul>
 <li>not as intuitive/not exactly array-like</li>
 </ul></li>
-</ul>
+</ul></div>
+
+<div class="right-half">
+<p><img src="Reg_Figure_Option1_nonlinear_short.png" style="width:75%"> <img src="bias_slice.png" style="width:40%"></p></div>
 
 </article></slide><slide class=''><hgroup><h2>extrantsr (&quot;extra ANTsR&quot;, me, GitHub)</h2></hgroup><article  id="extrantsr-extra-antsr-me-github">
 
@@ -312,6 +319,8 @@ ortho2(median_image)</pre>
 <li>I use this heavily for my imaging analyses</li>
 </ul>
 
+<p><img src="Reg_Figure_Option1_short_across.png" style="width:60%"></p>
+
 </article></slide><slide class=''><hgroup><h2>Motion Correction/Calculation</h2></hgroup><article  id="motion-correctioncalculation">
 
 <ul>
@@ -319,27 +328,19 @@ ortho2(median_image)</pre>
 <li>Also the motion-corrected image</li>
 </ul>
 
-<pre class = 'prettyprint lang-r'>motionCorrectionResults = antsMotionCalculation(boldImage, 
-                        fixed = average_image, 
-                        moreaccurate = 1,
-                        txtype = &quot;Rigid&quot;)</pre>
+<pre class = 'prettyprint lang-r'>motionCorrectionResults = antsMotionCalculation(
+  boldImage, fixed = average_image, txtype = &quot;Rigid&quot;)</pre>
 
-<pre >  MOCOparam1 MOCOparam2 MOCOparam3 MOCOparam4 MOCOparam5 MOCOparam6
-1     -2e-04      1e-04      2e-04     0.0109     0.2225    -0.0356
-2     -2e-04      1e-04      2e-04     0.0182     0.1724    -0.0478
-3     -2e-04      0e+00      2e-04     0.0256     0.2303    -0.0061</pre>
+<p><img src="fmri_proc_files/figure-html/moco_run_plot-1.png" title="" alt="" width="768" /></p>
 
 </article></slide><slide class=''><hgroup><h2>Let&#39;s Make a Matrix!</h2></hgroup><article  id="lets-make-a-matrix">
 
-<p><code>timeseries2matrix</code> does what the name says</p>
+<p><code>timeseries2matrix</code> creates \(T\times V\) matrix, \(V\) voxels in mask</p>
 
 <pre class = 'prettyprint lang-r'>averageImage = getAverageOfTimeSeries(moco_img)
-boldMatrix = timeseries2matrix(img = moco_img, 
-    mask = averageImage &gt; mean(averageImage))
+boldMatrix = timeseries2matrix(img = moco_img, mask = averageImage &gt; mean(averageImage))
 DVARS = computeDVARS(boldMatrix)
 print(dim(boldMatrix))</pre>
-
-<p>As you can see, the matrix is \(T\times V\), where \(V\) are all the voxels in the mask</p>
 
 <pre >[1]   205 39568</pre>
 
@@ -352,19 +353,22 @@ fd = motionCorrectionResults$fd</pre>
 
 <p><img src="fmri_proc_files/figure-html/dvars_run-1.png" title="" alt="" width="768" /></p>
 
-</article></slide><slide class=''><hgroup><h2>Nuisance Variables</h2></hgroup><article  id="nuisance-variables">
+</article></slide><slide class=''><hgroup><h2>Nuisance Variables: CompCor</h2></hgroup><article  id="nuisance-variables-compcor">
 
-<p><code>compcor</code> implements PCA on high-variance voxels <span class="cite">(Behzadi et al. 2007)</span></p>
+<p><code>compcor</code>: PCA on high-variance voxels <span class="cite">(Behzadi et al. 2007)</span></p>
 
 <ul>
 <li>have to specify number of components</li>
 </ul>
 
-<pre class = 'prettyprint lang-r'>compCorNuisanceVariables &lt;- compcor(moco_img, 
-  maskImage, 
-  ncompcor = 6)
-nuisanceVariables &lt;- cbind(moco_params, 
-    compCorNuisanceVariables)</pre>
+<pre class = 'prettyprint lang-r'>compCorNuisanceVariables &lt;- compcor(moco_img, maskImage, ncompcor = 6)
+nuisanceVariables &lt;- cbind(moco_params, compCorNuisanceVariables)</pre>
+
+<p><img src="fmri_proc_files/figure-html/ccor_plot-1.png" title="" alt="" width="768" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Nuisance Variables: CompCor Voxels</h2></hgroup><article  id="nuisance-variables-compcor-voxels">
+
+<p><img src="fmri_proc_files/figure-html/ccor_vox-1.png" title="" alt="" width="768" /></p>
 
 </article></slide><slide class=''><hgroup><h2>Nuisance Regression and Filtering</h2></hgroup><article  id="nuisance-regression-and-filtering">
 
@@ -379,19 +383,18 @@ rMatrix &lt;- residuals(nuisance_mod)</pre>
 </article></slide><slide class=''><hgroup><h2>Filtering the frequencies</h2></hgroup><article  id="filtering-the-frequencies">
 
 <ul>
-<li><code>frequencyFilterfMRI</code> calls <code>mFilter::cffilter</code> to filter the frequencies</li>
+<li><code>frequencyFilterfMRI</code> calls <code>mFilter::cffilter</code></li>
 </ul>
 
 <pre class = 'prettyprint lang-r'>rMatrix &lt;- frequencyFilterfMRI(rMatrix, tr = 2, 
-    freqLo = 0.01, freqHi = 0.1, 
-    opt = &quot;trig&quot;)</pre>
+    freqLo = 0.01, freqHi = 0.1, opt = &quot;trig&quot;)</pre>
 
 <p><img src="fmri_proc_files/figure-html/filt_nuisance_reg_plot-1.png" title="" alt="" width="768" /></p>
 
 </article></slide><slide class=''><hgroup><h2>Smooth Image</h2></hgroup><article  id="smooth-image">
 
 <ul>
-<li><code>smoothImage</code> smooths using a Gaussian with FWHM (≈ 2 * Pixel Dimensions)</li>
+<li><code>smoothImage</code> - Gaussian smoothing FWHM = 6mm\(^3\)</li>
 </ul>
 
 <pre class = 'prettyprint lang-r'>cleanBoldImage &lt;- matrix2timeseries(boldImage, 
