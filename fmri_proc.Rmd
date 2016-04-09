@@ -695,9 +695,13 @@ for (i in 2:n) {
 
 ## Not covered
 
+<div style='font-size: 38pt;'>
+
 - `fmri` package (ask Joerg)
 - `AnalyzeFMRI`
 - `cudaBayesreg`
+
+</div>
 
 ## Bibliography
 
