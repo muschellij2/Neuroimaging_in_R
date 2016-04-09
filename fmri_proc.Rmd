@@ -693,7 +693,7 @@ for (i in 2:n) {
 
 # What Else Do We Need?
 
-# Not covered
+## Not covered
 
 - `fmri` package (ask Joerg)
 - `AnalyzeFMRI`
