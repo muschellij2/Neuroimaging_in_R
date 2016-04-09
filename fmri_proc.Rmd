@@ -124,7 +124,7 @@ files
 
 </div>
 
-## oro.nifti (Brandon Whitcher, CRAN)
+## `oro.nifti` (Brandon Whitcher, CRAN)
 
 - Can read/write NIfTI/ANALYZE files
 - Implements the `nifti` object (S4)
@@ -156,7 +156,7 @@ Requires MATLAB (installs SPM to R library)
 
 
 
-## fslr (me, CRAN)
+## `fslr` (me, CRAN)
 
 - Relies **heavily** on the `nifti` object
 - Wraps FSL - a popular neuroimaging suite
@@ -329,7 +329,7 @@ image(median_image, z = 18, plot.type = "single")
 ```
 
 
-## ANTsR (Brian Avants, GitHub)
+## `ANTsR` (Brian Avants, GitHub)
 
 Located at https://github.com/stnava/ANTsR
 
@@ -348,7 +348,7 @@ Located at https://github.com/stnava/ANTsR
 <img src="bias_slice.png" style="width:40%">
 </div> 
 
-## extrantsr ("extra ANTsR", me, GitHub)
+## `extrantsr` ("extra ANTsR", me, GitHub)
 
 Located at https://github.com/muschelli2/extrantsr
 
