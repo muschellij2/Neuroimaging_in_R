@@ -23,3 +23,6 @@ index_cache/slidy/*
 
 myproc_cache/html/*
 .Rproj.user
+fmri_proc_cache/html/*
+
+*.nii.gz

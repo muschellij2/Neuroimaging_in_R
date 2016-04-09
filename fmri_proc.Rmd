@@ -421,14 +421,14 @@ legend(x = 10, y = mult * 1.4,
 ## Nuisance Variables
 
 `compcor` implements PCA on high-variance voxels [@behzadi2007component]
-    - have to specify number of components
+
+- have to specify number of components
+
 ```{r ccor_show, eval = FALSE}
-compCorNuisanceVariables <- compcor(
-  moco_img, 
+compCorNuisanceVariables <- compcor(moco_img, 
   maskImage, 
   ncompcor = 6)
-nuisanceVariables <- cbind(
-    moco_params, 
+nuisanceVariables <- cbind(moco_params, 
     compCorNuisanceVariables)
 ```
 
@@ -467,43 +467,9 @@ rMatrix <- residuals(nuisance_mod)
 
 ## Nuisance Regression and Filtering
 
-`lm` works great here (data is $T×V$)
+`lm` works great here for regression $\left(\text{data is }T×V\right)$
 
-```{r nuisance_reg_show, eval = FALSE}
-nuisanceVariables = scale(nuisanceVariables)
-nuisance_mod = lm(boldMatrix ~ nuisanceVariables)
-rMatrix <- residuals(nuisance_mod)
-```
-
-## Filtering
-
-- `frequencyFilterfMRI` calls `mFilter::cffilter`
-
-```{r filter_show, eval = FALSE}
-rMatrix <- frequencyFilterfMRI(rMatrix, 
-    tr = 2, 
-    freqLo = 0.01, 
-    freqHi = 0.1, 
-    opt = "trig")
-```
-
-## Smooth Image 
-
-- `smoothImage` can take a FWHM (≈ 2 * Pixel Dimensions) to smooth
-
-```{r smooth_show, eval = FALSE}
-cleanBoldImage <- matrix2timeseries(
-    boldImage, 
-    maskImage, 
-    rMatrix)
-smoothCleanBoldImage = smoothImage(
-    cleanBoldImage, 
-    sigma = c(rep(6, 3), 0),
-    FWHM = TRUE)
-```
-
-
-```{r nuisance_reg_run, echo = FALSE, eval = FALSE}
+```{r nuisance_reg_run, echo = FALSE, eval = TRUE}
 boldImage = antsImageRead(moco_fname)
 averageImage = getAverageOfTimeSeries(boldImage)
 maskImage = getMask(averageImage, 
@@ -513,8 +479,10 @@ maskImage = getMask(averageImage,
 nuisanceVariables = scale(nuisanceVariables)
 nuisance_mod = lm(boldMatrix ~ nuisanceVariables)
 rMatrix <- residuals(nuisance_mod)
-rMatrix <- frequencyFilterfMRI(rMatrix, 
-    tr = 2, 
+
+rMat1 = rMatrix
+
+rMatrix <- frequencyFilterfMRI(rMatrix, tr = 2, 
     freqLo = 0.01, 
     freqHi = 0.1, 
     opt = "trig")
@@ -527,11 +495,93 @@ smoothCleanBoldImage = smoothImage(
     cleanBoldImage, 
     sigma = c(rep(fwhm, 3), 0),
     FWHM = TRUE)
+rMat2 <- timeseries2matrix(smoothCleanBoldImage, 
+    maskImage)
 ```
 
 
+```{r nuisance_reg_show, eval = FALSE}
+nuisanceVariables = scale(nuisanceVariables)
+nuisance_mod = lm(boldMatrix ~ nuisanceVariables)
+rMatrix <- residuals(nuisance_mod)
+```
 
+```{r nuisance_reg_plot, echo = FALSE, fig.height = 3.5, fig.width= 8, dependson="nuisance_reg_run"}
 
+set.seed(20160409)
+n = 5
+samp = sample(ncol(rMat1), size = n)
+mat = rMat1[, samp]
+r = range(mat)
+plot(mat[, 1], xlab = "Scan Number", 
+     ylab = "fMRI Intensity", main = paste0(n, ' Randomly Selected Voxels'),
+     ylim = r, 
+     cex.main = 2,
+     cex.lab = 1.5,
+     cex.axis = 1.25,
+     type = "l"
+     )
+for (i in 2:n) {
+  lines(mat[, i], col = i)
+}
+```
+
+## Filtering the frequencies
+
+- `frequencyFilterfMRI` calls `mFilter::cffilter` to filter the frequencies
+
+```{r filter_show, eval = FALSE}
+rMatrix <- frequencyFilterfMRI(rMatrix, tr = 2, 
+    freqLo = 0.01, freqHi = 0.1, 
+    opt = "trig")
+```
+
+```{r filt_nuisance_reg_plot, echo = FALSE, fig.height = 3.5, fig.width= 8, dependson="nuisance_reg_run"}
+mat = rMatrix[, samp]
+r = range(mat)
+plot(mat[, 1], 
+     xlab = "Scan Number", 
+     ylab = "fMRI Intensity", 
+     main = paste0(n, ' Selected Voxels (Filtered)'),
+     ylim = r, 
+     cex.main = 2,
+     cex.lab = 1.5,
+     cex.axis = 1.25,
+     type = "l"
+     )
+for (i in 2:n) {
+  lines(mat[, i], col = i)
+}
+```
+
+## Smooth Image 
+
+- `smoothImage` smooths using a Gaussian with FWHM (≈ 2 * Pixel Dimensions) 
+
+```{r smooth_show, eval = FALSE}
+cleanBoldImage <- matrix2timeseries(boldImage, 
+    maskImage, rMatrix)
+smoothCleanBoldImage = smoothImage(cleanBoldImage, 
+    sigma = c(rep(6, 3), 0), FWHM = TRUE)
+```
+
+```{r smooth_filt_nuisance_reg_plot, echo = FALSE, fig.height = 3.5, fig.width= 8, dependson="nuisance_reg_run"}
+mat = rMat2[, samp]
+r = range(mat)
+plot(mat[, 1], 
+     xlab = "Scan Number", 
+     ylab = "fMRI Intensity", 
+     main = paste0(n, ' Selected Voxels (Smoothed)'),
+     ylim = r, 
+     cex.main = 2,
+     cex.lab = 1.5,
+     cex.axis = 1.25,
+     type = "l"
+     )
+for (i in 2:n) {
+  lines(mat[, i], col = i)
+}
+```
 
 # What Else Do We Need?
 

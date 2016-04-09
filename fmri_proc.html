@@ -359,50 +359,52 @@ fd = motionCorrectionResults$fd</pre>
 
 </article></slide><slide class=''><hgroup><h2>Nuisance Variables</h2></hgroup><article  id="nuisance-variables">
 
-<p><code>compcor</code> implements PCA on high-variance voxels <span class="cite">(Behzadi et al. 2007)</span> - have to specify number of components</p>
+<p><code>compcor</code> implements PCA on high-variance voxels <span class="cite">(Behzadi et al. 2007)</span></p>
 
-<pre class = 'prettyprint lang-r'>compCorNuisanceVariables &lt;- compcor(
-  moco_img, 
+<ul>
+<li>have to specify number of components</li>
+</ul>
+
+<pre class = 'prettyprint lang-r'>compCorNuisanceVariables &lt;- compcor(moco_img, 
   maskImage, 
   ncompcor = 6)
-nuisanceVariables &lt;- cbind(
-    moco_params, 
+nuisanceVariables &lt;- cbind(moco_params, 
     compCorNuisanceVariables)</pre>
 
 </article></slide><slide class=''><hgroup><h2>Nuisance Regression and Filtering</h2></hgroup><article  id="nuisance-regression-and-filtering">
 
-<p><code>lm</code> works great here (data is \(T×V\))</p>
+<p><code>lm</code> works great here for regression \(\left(\text{data is }T×V\right)\)</p>
 
 <pre class = 'prettyprint lang-r'>nuisanceVariables = scale(nuisanceVariables)
 nuisance_mod = lm(boldMatrix ~ nuisanceVariables)
 rMatrix &lt;- residuals(nuisance_mod)</pre>
 
-</article></slide><slide class=''><hgroup><h2>Filtering</h2></hgroup><article  id="filtering">
+<p><img src="fmri_proc_files/figure-html/nuisance_reg_plot-1.png" title="" alt="" width="768" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Filtering the frequencies</h2></hgroup><article  id="filtering-the-frequencies">
 
 <ul>
-<li><code>frequencyFilterfMRI</code> calls <code>mFilter::cffilter</code></li>
+<li><code>frequencyFilterfMRI</code> calls <code>mFilter::cffilter</code> to filter the frequencies</li>
 </ul>
 
-<pre class = 'prettyprint lang-r'>rMatrix &lt;- frequencyFilterfMRI(rMatrix, 
-    tr = 2, 
-    freqLo = 0.01, 
-    freqHi = 0.1, 
+<pre class = 'prettyprint lang-r'>rMatrix &lt;- frequencyFilterfMRI(rMatrix, tr = 2, 
+    freqLo = 0.01, freqHi = 0.1, 
     opt = &quot;trig&quot;)</pre>
+
+<p><img src="fmri_proc_files/figure-html/filt_nuisance_reg_plot-1.png" title="" alt="" width="768" /></p>
 
 </article></slide><slide class=''><hgroup><h2>Smooth Image</h2></hgroup><article  id="smooth-image">
 
 <ul>
-<li><code>smoothImage</code> can take a FWHM (≈ 2 * Pixel Dimensions) to smooth</li>
+<li><code>smoothImage</code> smooths using a Gaussian with FWHM (≈ 2 * Pixel Dimensions)</li>
 </ul>
 
-<pre class = 'prettyprint lang-r'>cleanBoldImage &lt;- matrix2timeseries(
-    boldImage, 
-    maskImage, 
-    rMatrix)
-smoothCleanBoldImage = smoothImage(
-    cleanBoldImage, 
-    sigma = c(rep(6, 3), 0),
-    FWHM = TRUE)</pre>
+<pre class = 'prettyprint lang-r'>cleanBoldImage &lt;- matrix2timeseries(boldImage, 
+    maskImage, rMatrix)
+smoothCleanBoldImage = smoothImage(cleanBoldImage, 
+    sigma = c(rep(6, 3), 0), FWHM = TRUE)</pre>
+
+<p><img src="fmri_proc_files/figure-html/smooth_filt_nuisance_reg_plot-1.png" title="" alt="" width="768" /></p>
 
 </article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>What Else Do We Need?</h2></hgroup><article  id="what-else-do-we-need">
 
