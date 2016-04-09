@@ -339,10 +339,9 @@ ortho2(median_image)</pre>
 
 <pre class = 'prettyprint lang-r'>averageImage = getAverageOfTimeSeries(moco_img)
 boldMatrix = timeseries2matrix(img = moco_img, mask = averageImage &gt; mean(averageImage))
-DVARS = computeDVARS(boldMatrix)
 print(dim(boldMatrix))</pre>
 
-<pre >[1]   205 39568</pre>
+<p><img src="fmri_proc_files/figure-html/ts_heatmap-1.png" title="" alt="" width="768" /></p>
 
 </article></slide><slide class=''><hgroup><h2>DVARS - RMS change in BOLD</h2></hgroup><article  id="dvars---rms-change-in-bold">
 
@@ -361,8 +360,8 @@ fd = motionCorrectionResults$fd</pre>
 <li>have to specify number of components</li>
 </ul>
 
-<pre class = 'prettyprint lang-r'>compCorNuisanceVariables &lt;- compcor(moco_img, maskImage, ncompcor = 6)
-nuisanceVariables &lt;- cbind(moco_params, compCorNuisanceVariables)</pre>
+<pre class = 'prettyprint lang-r'>compCorNuisanceVariables = compcor(moco_img, maskImage, ncompcor = 6)
+nuisanceVariables = cbind(moco_params, compCorNuisanceVariables)</pre>
 
 <p><img src="fmri_proc_files/figure-html/ccor_plot-1.png" title="" alt="" width="768" /></p>
 
@@ -376,7 +375,7 @@ nuisanceVariables &lt;- cbind(moco_params, compCorNuisanceVariables)</pre>
 
 <pre class = 'prettyprint lang-r'>nuisanceVariables = scale(nuisanceVariables)
 nuisance_mod = lm(boldMatrix ~ nuisanceVariables)
-rMatrix &lt;- residuals(nuisance_mod)</pre>
+rMatrix = residuals(nuisance_mod)</pre>
 
 <p><img src="fmri_proc_files/figure-html/nuisance_reg_plot-1.png" title="" alt="" width="768" /></p>
 
@@ -386,8 +385,7 @@ rMatrix &lt;- residuals(nuisance_mod)</pre>
 <li><code>frequencyFilterfMRI</code> calls <code>mFilter::cffilter</code></li>
 </ul>
 
-<pre class = 'prettyprint lang-r'>rMatrix &lt;- frequencyFilterfMRI(rMatrix, tr = 2, 
-    freqLo = 0.01, freqHi = 0.1, opt = &quot;trig&quot;)</pre>
+<pre class = 'prettyprint lang-r'>rMatrix = frequencyFilterfMRI(rMatrix, tr = 2, freqLo = 0.01, freqHi = 0.1, opt = &quot;trig&quot;)</pre>
 
 <p><img src="fmri_proc_files/figure-html/filt_nuisance_reg_plot-1.png" title="" alt="" width="768" /></p>
 
@@ -397,10 +395,8 @@ rMatrix &lt;- residuals(nuisance_mod)</pre>
 <li><code>smoothImage</code> - Gaussian smoothing FWHM = 6mm\(^3\)</li>
 </ul>
 
-<pre class = 'prettyprint lang-r'>cleanBoldImage &lt;- matrix2timeseries(boldImage, 
-    maskImage, rMatrix)
-smoothCleanBoldImage = smoothImage(cleanBoldImage, 
-    sigma = c(rep(6, 3), 0), FWHM = TRUE)</pre>
+<pre class = 'prettyprint lang-r'>cleanBoldImage = matrix2timeseries(boldImage, maskImage, rMatrix)
+smoothCleanBoldImage = smoothImage(cleanBoldImage, sigma = c(rep(6, 3), 0), FWHM = TRUE)</pre>
 
 <p><img src="fmri_proc_files/figure-html/smooth_filt_nuisance_reg_plot-1.png" title="" alt="" width="768" /></p>
 

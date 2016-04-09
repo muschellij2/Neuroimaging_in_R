@@ -408,10 +408,8 @@ rm(list = "mp")
 ```{r ts_show, echo = TRUE, eval = FALSE}
 averageImage = getAverageOfTimeSeries(moco_img)
 boldMatrix = timeseries2matrix(img = moco_img, mask = averageImage > mean(averageImage))
-DVARS = computeDVARS(boldMatrix)
 print(dim(boldMatrix))
 ```
-
 ```{r ts_run, echo = FALSE, dependson="motion_corr_run"}
 moco_img = antsImageRead(moco_fname)
 averageImage = 
@@ -424,9 +422,23 @@ boldMatrix = timeseries2matrix(
     moco_img, 
     maskImage)
 DVARS = computeDVARS(boldMatrix)
-print(dim(boldMatrix))
 ```
-
+```{r ts_heatmap, echo = FALSE, dependson="ts_run", fig.height = 3.5, fig.width = 8}
+library(RColorBrewer)
+rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))
+r <- rf(32)
+mat = scale(boldMatrix)
+image(x = 1:nrow(mat), 
+      y = 1:ncol(mat), 
+      mat, useRaster=TRUE, 
+      col = r,
+      xlab = "Scan Number", ylab = "Voxel",
+      main = paste0("Dimensions: ", 
+                    dim(mat)[1], "×", dim(mat)[2]),
+     cex.main = 2,
+     cex.lab = 1.5,
+     cex.axis = 1.25)
+```
 
 ## DVARS - RMS change in BOLD
 
@@ -434,7 +446,6 @@ print(dim(boldMatrix))
 ```{r dvars_show, echo = TRUE, eval = FALSE}
 DVARS = computeDVARS(boldMatrix)
 fd = motionCorrectionResults$fd
-
 ```
 
 ```{r dvars_run, echo = FALSE, fig.height = 4, fig.width= 8, dependson="ts_run"}
@@ -470,8 +481,8 @@ legend(x = 10, y = mult * 1.4,
 - have to specify number of components
 
 ```{r ccor_show, eval = FALSE}
-compCorNuisanceVariables <- compcor(moco_img, maskImage, ncompcor = 6)
-nuisanceVariables <- cbind(moco_params, compCorNuisanceVariables)
+compCorNuisanceVariables = compcor(moco_img, maskImage, ncompcor = 6)
+nuisanceVariables = cbind(moco_params, compCorNuisanceVariables)
 ```
 
 ```{r ccor_run, echo = FALSE, dependson="motion_corr_run"}
@@ -480,13 +491,13 @@ ccor_file = paste0(stub,
 if (all(file.exists(ccor_file))) { 
     load(ccor_file)
 } else {
-    highvar <- compcor(
+    highvar = compcor(
         moco_img, 
         maskImage, 
         ncompcor = 6, 
         variance_extreme = 0.975,
         returnhighvarmatinds = TRUE)
-    compCorNuisanceVariables <- compcor(
+    compCorNuisanceVariables = compcor(
         moco_img, 
         maskImage, 
         ncompcor = 6, 
@@ -495,15 +506,15 @@ if (all(file.exists(ccor_file))) {
         highvar,
         file = ccor_file)
 }
-globalSignal <- rowMeans(boldMatrix)
+globalSignal = rowMeans(boldMatrix)
 
-nuisanceVariables <- cbind(
+nuisanceVariables = cbind(
     # globalSignal = globalSignal,
     moco_params, 
     compCorNuisanceVariables)
 nuisanceVariables = scale(nuisanceVariables)
 nuisance_mod = lm(boldMatrix ~ nuisanceVariables)
-rMatrix <- residuals(nuisance_mod)
+rMatrix = residuals(nuisance_mod)
 rm(list = "nuisance_mod")
 ```
 
@@ -515,7 +526,7 @@ maskImage = getMask(averageImage,
     Inf, cleanup = 2)
 amat = timeseries2matrix(moco_img, maskImage)
 mat = scale(amat[, highvar])
-compcorrsvd <- svd(mat, nu = 6)
+compcorrsvd = svd(mat, nu = 6)
 mat = compcorrsvd$u
 r = range(mat)
 plot(mat[, 1], xlab = "Scan Number", 
@@ -543,7 +554,7 @@ maskImage = getMask(averageImage,
 pc_mask2 = amat
 pc_mask2 = pc_mask2 * 0
 pc_mask2[, highvar] = 1
-pc_mask2 <- matrix2timeseries(
+pc_mask2 = matrix2timeseries(
     moco_img, 
     maskImage, 
     pc_mask2)
@@ -575,15 +586,15 @@ maskImage = getMask(averageImage,
 
 nuisanceVariables = scale(nuisanceVariables)
 nuisance_mod = lm(boldMatrix ~ nuisanceVariables)
-rMatrix <- residuals(nuisance_mod)
+rMatrix = residuals(nuisance_mod)
 
 rMat1 = rMatrix
 
-rMatrix <- frequencyFilterfMRI(rMatrix, tr = 2, 
+rMatrix = frequencyFilterfMRI(rMatrix, tr = 2, 
     freqLo = 0.01, 
     freqHi = 0.1, 
     opt = "trig")
-cleanBoldImage <- matrix2timeseries(
+cleanBoldImage = matrix2timeseries(
     boldImage, 
     maskImage, 
     rMatrix)
@@ -592,7 +603,7 @@ smoothCleanBoldImage = smoothImage(
     cleanBoldImage, 
     sigma = c(rep(fwhm, 3), 0),
     FWHM = TRUE)
-rMat2 <- timeseries2matrix(smoothCleanBoldImage, 
+rMat2 = timeseries2matrix(smoothCleanBoldImage, 
     maskImage)
 ```
 
@@ -600,7 +611,7 @@ rMat2 <- timeseries2matrix(smoothCleanBoldImage,
 ```{r nuisance_reg_show, eval = FALSE}
 nuisanceVariables = scale(nuisanceVariables)
 nuisance_mod = lm(boldMatrix ~ nuisanceVariables)
-rMatrix <- residuals(nuisance_mod)
+rMatrix = residuals(nuisance_mod)
 ```
 
 ```{r nuisance_reg_plot, echo = FALSE, fig.height = 3.5, fig.width= 8, dependson="nuisance_reg_run"}
@@ -628,8 +639,7 @@ for (i in 2:n) {
 - `frequencyFilterfMRI` calls `mFilter::cffilter`
 
 ```{r filter_show, eval = FALSE}
-rMatrix <- frequencyFilterfMRI(rMatrix, tr = 2, 
-    freqLo = 0.01, freqHi = 0.1, opt = "trig")
+rMatrix = frequencyFilterfMRI(rMatrix, tr = 2, freqLo = 0.01, freqHi = 0.1, opt = "trig")
 ```
 
 ```{r filt_nuisance_reg_plot, echo = FALSE, fig.height = 3.5, fig.width= 8, dependson="nuisance_reg_run"}
@@ -657,10 +667,8 @@ for (i in 2:n) {
 - `smoothImage` - Gaussian smoothing FWHM = 6mm$^3$
 
 ```{r smooth_show, eval = FALSE}
-cleanBoldImage <- matrix2timeseries(boldImage, 
-    maskImage, rMatrix)
-smoothCleanBoldImage = smoothImage(cleanBoldImage, 
-    sigma = c(rep(6, 3), 0), FWHM = TRUE)
+cleanBoldImage = matrix2timeseries(boldImage, maskImage, rMatrix)
+smoothCleanBoldImage = smoothImage(cleanBoldImage, sigma = c(rep(6, 3), 0), FWHM = TRUE)
 ```
 
 ```{r smooth_filt_nuisance_reg_plot, echo = FALSE, fig.height = 3.5, fig.width= 8, dependson="nuisance_reg_run"}
