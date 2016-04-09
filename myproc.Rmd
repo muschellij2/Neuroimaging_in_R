@@ -42,6 +42,52 @@ hook2 <- function(x){ gsub("```\n+```\n", "", x) }
 knit_hooks$set(document = hook2)
 ```
 
+## Main Software: fMRI/MRI **Processing**
+
+<div style='font-size: 32pt;'>
+
+- I don't process my data
+- MATLAB/SPM
+- R
+- Python/Nipype
+- BrainVoyager/FreeSurfer/AFNI
+- Other
+- Stata/SAS (just kidding)
+</div>
+
+## Main Software: Statistical **Analysis**
+
+<div style='font-size: 35pt;'>
+
+- MATLAB/SPM
+- R
+- Python/Pandas
+- SAS
+- Stata/SPSS
+- Other/Excel
+</div>
+
+## Are these the same?
+
+<div style='font-size: 70pt;'>
+- Yes
+- No
+</div>
+
+## Why R?
+
+<div style='font-size: 25pt;'>
+
+- Statistical tools are state of the art
+    - SAS/Stata do not currently support imaging 
+- R statistical tools > MATLAB/Python (opinion)
+    - maybe not machine learning (scikit-learn)
+- Statistics programs commonly teach it
+- Packages have been developed for imaging
+- Shiny
+</div>
+
+
 ## Data used from NITRC
 
 Multi-sequence MRI dataset from HAMMER, (NIfTI conversion from ANALYZE).  
@@ -61,16 +107,6 @@ files
 - Data from https://www.nitrc.org/frs/?group_id=187 
     - testing folder in White_Matter_Lesion_Segmentation_Testdata.zip
 
-
-## Why R?
-
-- Statistical tools are state of the art
-    - SAS/Stata do not currently support imaging 
-- R statistical tools > MATLAB/Python (opinion)
-    - maybe not machine learning (scikit-learn)
-- Statistics programs commonly teach it
-- Packages have been developed for imaging
-- Shiny
 
 
 ## oro.nifti (Brandon Whitcher, CRAN)

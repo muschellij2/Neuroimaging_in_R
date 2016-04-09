@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Processing Neuroimaging Data in R: Capabilities</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="generator" content="pandoc" />
+
+
+
+  <meta name="date" content="2016-04-10" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <link rel="stylesheet" media="all" href="fmri_proc_files/ioslides-13.5.1/fonts/fonts.css">
+
+  <link rel="stylesheet" media="all" href="fmri_proc_files/ioslides-13.5.1/theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="fmri_proc_files/ioslides-13.5.1/theme/css/phone.css">
+
+  <base target="_blank">
+
+  <script type="text/javascript">
+    var SLIDE_CONFIG = {
+      // Slide settings
+      settings: {
+                title: 'Processing Neuroimaging Data in R: Capabilities',
+                        subtitle: '<a href="https://github.com/muschellij2/Neuroimaging_in_R" class="uri">https://github.com/muschellij2/Neuroimaging_in_R</a>',
+                useBuilds: true,
+        usePrettify: true,
+        enableSlideAreas: true,
+        enableTouch: true,
+              },
+
+      // Author information
+      presenters: [
+            {
+        name:  'John Muschelli <a href="http://johnmuschelli.com/Neuroimaging_in_R" class="uri">http://johnmuschelli.com/Neuroimaging_in_R</a>' ,
+        company: '',
+        gplus: '',
+        twitter: '',
+        www: '',
+        github: ''
+      },
+            ]
+    };
+  </script>
+
+  <style type="text/css">
+
+    b, strong {
+      font-weight: bold;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    slides > slide {
+      -webkit-transition: all 0.4s ease-in-out;
+      -moz-transition: all 0.4s ease-in-out;
+      -o-transition: all 0.4s ease-in-out;
+      transition: all 0.4s ease-in-out;
+    }
+
+    .auto-fadein {
+      -webkit-transition: opacity 0.6s ease-in;
+      -webkit-transition-delay: 0.4s;
+      -moz-transition: opacity 0.6s ease-in 0.4s;
+      -o-transition: opacity 0.6s ease-in 0.4s;
+      transition: opacity 0.6s ease-in 0.4s;
+      opacity: 0;
+    }
+
+  </style>
+
+  <link rel="stylesheet" href="john.css" type="text/css" />
+
+  <link rel="stylesheet" type="text/css" href="papaya.css?version=0.8&build=979" />
+    <script type="text/javascript" src="papaya.js?version=0.8&build=979">
+      
+    </script>
+      <script type="text/javascript"> 
+        var params = []; 
+        params["images"] = ["T1.nii.gz"]; 
+        </script>
+
+</head>
+
+<body style="opacity: 0">
+
+<slides>
+
+  <slide class="title-slide segue nobackground">
+        <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 data-config-title><!-- populated from slide_config.json --></h1>
+      <h2 data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p data-config-presenter><!-- populated from slide_config.json --></p>
+            <p style="margin-top: 6px; margin-left: -2px;">April 10, 2016</p>
+          </hgroup>
+  </slide>
+
+<slide class=''><hgroup><h2>Main Software: fMRI/MRI <strong>Processing</strong></h2></hgroup><article  id="main-software-fmrimri-processing">
+
+<div style="font-size: 32pt;">
+<ul>
+<li>I don&#39;t process my data</li>
+<li>MATLAB/SPM</li>
+<li>R</li>
+<li>Python/Nipype</li>
+<li>BrainVoyager/FreeSurfer/AFNI</li>
+<li>Other</li>
+<li>Stata/SAS (just kidding)</li>
+</ul></div>
+
+</article></slide><slide class=''><hgroup><h2>Main Software: Statistical <strong>Analysis</strong></h2></hgroup><article  id="main-software-statistical-analysis">
+
+<div style="font-size: 35pt;">
+<ul>
+<li>MATLAB/SPM</li>
+<li>R</li>
+<li>Python/Pandas</li>
+<li>SAS</li>
+<li>Stata/SPSS</li>
+<li>Other/Excel</li>
+</ul></div>
+
+</article></slide><slide class=''><hgroup><h2>Are these the same?</h2></hgroup><article  id="are-these-the-same">
+
+<div style="font-size: 70pt;">
+<ul>
+<li>Yes</li>
+<li>No</li>
+</ul></div>
+
+</article></slide><slide class=''><hgroup><h2>Why R?</h2></hgroup><article  id="why-r">
+
+<div style="font-size: 25pt;">
+<ul>
+<li>Statistical tools are state of the art
+
+<ul>
+<li>SAS/Stata do not currently support imaging</li>
+</ul></li>
+<li>R statistical tools &gt; MATLAB/Python (opinion)
+
+<ul>
+<li>maybe not machine learning (scikit-learn)</li>
+</ul></li>
+<li>Statistics programs commonly teach it</li>
+<li>Packages have been developed for imaging</li>
+<li>Shiny</li>
+</ul></div>
+
+</article></slide><slide class=''><hgroup><h2>Data used from NITRC</h2></hgroup><article  id="data-used-from-nitrc">
+
+<p>Multi-sequence MRI dataset from Kirby 21 (KKI2009-19):</p>
+
+<ul>
+<li>Using 2 MRI sequences: <strong>fMRI, MPRAGE</strong></li>
+</ul>
+
+<pre class = 'prettyprint lang-r'>files
+                anatomical                 functional 
+&quot;KKI2009-19-MPRAGE.nii.gz&quot;   &quot;KKI2009-19-fMRI.nii.gz&quot; </pre>
+
+<ul>
+<li>Data from <a href='https://www.nitrc.org/projects/multimodal' title=''>https://www.nitrc.org/projects/multimodal</a></li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>oro.nifti (Brandon Whitcher, CRAN)</h2></hgroup><article  id="oro.nifti-brandon-whitcher-cran">
+
+<ul>
+<li>Can read/write NIfTI/ANALYZE files</li>
+<li>Implements the <code>nifti</code> object (S4)
+
+<ul>
+<li>Use it like an array</li>
+<li>Includes meta data relevant to images</li>
+</ul></li>
+<li>Has useful plotting functions <code>image.nifti</code>, <code>orthographic</code></li>
+</ul>
+
+<div class="left-half">
+<p><img src="myproc_files/figure-html/image-1.png" style="width:80%"></p></div>
+
+<div class="right-half">
+<p><img src="myproc_files/figure-html/ortho-1.png" style="width:100%"></p></div>
+
+</article></slide><slide class=''><hgroup><h2><code>spm12r</code> (me, CRAN)</h2></hgroup><article  id="spm12r-me-cran">
+
+<div style="font-size: 26pt;">
+<p>Requires MATLAB (installs SPM to R library)</p>
+
+<ul>
+<li><code>spm12_slice_timing</code> - slices are not taken instantaneously</li>
+<li><code>spm12_realign</code> - people move</li>
+<li><code>spm12_coregister</code> - structural imaging is higher resolution</li>
+<li><code>spm12_segment</code> - where&#39;s the gray matter?</li>
+<li><code>spm12_normalize</code> - brains look better in MNI</li>
+<li><code>spm12_smooth</code> - turn that noise down</li>
+</ul></div>
+
+</article></slide><slide class=''><hgroup><h2>fslr (me, CRAN)</h2></hgroup><article  id="fslr-me-cran">
+
+<ul>
+<li>Relies <strong>heavily</strong> on the <code>nifti</code> object</li>
+<li>Wraps FSL - a popular neuroimaging suite
+
+<ul>
+<li><code>fslmaths</code> - image manipulation</li>
+<li><code>fslstats</code> - image statistics</li>
+<li><code>fslbet</code> - brain extraction/skull stripping</li>
+</ul></li>
+<li>Adds some plotting functionality <code>ortho2</code>, <code>double_ortho</code></li>
+</ul>
+
+<p><img src="myproc_files/figure-html/bias_double-1.png" style="width:38%"></p>
+
+</article></slide><slide class=''><hgroup><h2><code>fslr</code> (me, CRAN)</h2></hgroup><article  id="fslr-me-cran-1">
+
+<div style="font-size: 26pt;">
+<ul>
+<li><code>fsl_slicetimer</code> - slices are not taken instantaneously</li>
+<li><code>mcflirt</code> - people move</li>
+<li><code>flirt</code> - structural imaging is higher resolution</li>
+<li><code>fast</code> - where&#39;s the gray matter?</li>
+<li><code>flirt</code>+<code>fnirt</code> - brains look better in MNI</li>
+<li><code>fslsmooth</code> - turn that noise down</li>
+</ul></div>
+
+</article></slide><slide class=''><hgroup><h2>Basics: The <code>nifti</code> object</h2></hgroup><article  id="basics-the-nifti-object">
+
+<p>fslr: <code>readnii</code> wraps <code>oro.nifti::readNIfTI</code>:</p>
+
+<pre class = 'prettyprint lang-r'>library(fslr)
+img = readnii(files[&quot;functional&quot;])
+print(img)</pre>
+
+<pre >NIfTI-1 format
+  Type            : nifti
+  Data Type       : 16 (FLOAT32)
+  Bits per Pixel  : 32
+  Slice Code      : 0 (Unknown)
+  Intent Code     : 0 (None)
+  Qform Code      : 1 (Scanner_Anat)
+  Sform Code      : 0 (Unknown)
+  Dimension       : 80 x 80 x 37 x 210
+  Pixel Dimension : 3 x 3 x 3.97 x 1
+  Voxel Units     : mm
+  Time Units      : Unknown</pre>
+
+</article></slide><slide class=''><hgroup><h2>fslr: Slice Timing Correction</h2></hgroup><article  id="fslr-slice-timing-correction">
+
+<p><code>fsl_slicetimer</code> will do slice timing correction</p>
+
+<pre class = 'prettyprint lang-r'>tr = 2 # 2 seconds
+first_scan = floor(10.0 / tr) + 1 # 10 seconds &quot;stabilization of signal&quot;
+img = subset_4d(img, first_scan:ntim(img))
+aimg = fsl_slicetimer(functional, 
+                      tr = 2, 
+                      indexing = &quot;up&quot;,
+                      acq_order = &quot;contiguous&quot;)</pre>
+
+</article></slide><slide class=''><hgroup><h2>Orthographic View</h2></hgroup><article  id="orthographic-view">
+
+<pre class = 'prettyprint lang-r'>library(fslr); median_image = apply(aimg, c(1, 2, 3), median)
+ortho2(median_image)</pre>
+
+<p><img src="fmri_proc_files/figure-html/med_img_run-1.png" title="" alt="" width="480" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Image Slice View</h2></hgroup><article  id="image-slice-view">
+
+<pre class = 'prettyprint lang-r'>image(median_image, z = 18, plot.type = &quot;single&quot;)</pre>
+
+<p><img src="fmri_proc_files/figure-html/image_show-1.png" title="" alt="" width="480" /></p>
+
+</article></slide><slide class=''><hgroup><h2>ANTsR (Brian Avants, GitHub)</h2></hgroup><article  id="antsr-brian-avants-github">
+
+<p>Located at <a href='https://github.com/stnava/ANTsR' title=''>https://github.com/stnava/ANTsR</a></p>
+
+<ul>
+<li>Re-implements ANTs <strong>within R</strong>
+
+<ul>
+<li>Implemented in ITK/C++ (fast)</li>
+<li>actively maintained (sometimes lacking documentation)</li>
+</ul></li>
+<li>N3/N4 Inhomogeneity correction</li>
+<li>Registration (Rigid, Affine, Non-linear Diffeomorphic)</li>
+<li>Reads/writes data using pointers (not in memory)
+
+<ul>
+<li>not as intuitive/not exactly array-like</li>
+</ul></li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>extrantsr (&quot;extra ANTsR&quot;, me, GitHub)</h2></hgroup><article  id="extrantsr-extra-antsr-me-github">
+
+<p>Located at <a href='https://github.com/muschelli2/extrantsr' title=''>https://github.com/muschelli2/extrantsr</a></p>
+
+<ul>
+<li>Wraps <code>ANTsR</code> functionality
+
+<ul>
+<li>Allows <code>nifti</code> object use</li>
+<li>Has <code>ants2oro</code> conversion for ANTs images to <code>nifti</code></li>
+</ul></li>
+<li>Adds commonly done pipelines for neuroimaging</li>
+<li>I use this heavily for my imaging analyses</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Motion Correction/Calculation</h2></hgroup><article  id="motion-correctioncalculation">
+
+<ul>
+<li><code>antsMotionCalculation</code> calculates motion parameters (rp)</li>
+<li>Also the motion-corrected image</li>
+</ul>
+
+<pre class = 'prettyprint lang-r'>motionCorrectionResults = antsMotionCalculation(boldImage, 
+                        fixed = average_image, 
+                        moreaccurate = 1,
+                        txtype = &quot;Rigid&quot;)</pre>
+
+<pre >     MOCOparam1   MOCOparam2   MOCOparam3 MOCOparam4 MOCOparam5
+1 -0.0002406909 6.624364e-05 0.0002286185 0.01086437  0.2225053
+2 -0.0001997646 9.491269e-05 0.0001630486 0.01815357  0.1724203
+3 -0.0002247564 4.113386e-05 0.0002146632 0.02564044  0.2303171
+    MOCOparam6
+1 -0.035629221
+2 -0.047818027
+3 -0.006071109</pre>
+
+</article></slide><slide class=''><hgroup><h2>Let&#39;s Make a Matrix!</h2></hgroup><article  id="lets-make-a-matrix">
+
+<p><code>timeseries2matrix</code> does what the name says</p>
+
+<pre class = 'prettyprint lang-r'>averageImage = getAverageOfTimeSeries(moco_img)
+boldMatrix = timeseries2matrix(img = moco_img, 
+    mask = averageImage &gt; mean(averageImage))
+DVARS = computeDVARS(boldMatrix)
+print(dim(boldMatrix))</pre>
+
+<p>As you can see, the matrix is \(T\times V\), where \(V\) are all the voxels in the mask</p>
+
+<pre >[1]   205 39568</pre>
+
+</article></slide><slide class=''><hgroup><h2>DVARS - RMS change in BOLD</h2></hgroup><article  id="dvars---rms-change-in-bold">
+
+<p><code>computeDVARS</code> does what the names says</p>
+
+<pre class = 'prettyprint lang-r'>DVARS = computeDVARS(boldMatrix)
+fd = motionCorrectionResults$fd</pre>
+
+<p><img src="fmri_proc_files/figure-html/dvars_run-1.png" title="" alt="" width="768" /></p>
+
+</article></slide><slide class=''><hgroup><h2>Nuisance Variables</h2></hgroup><article  id="nuisance-variables">
+
+<p><code>compcor</code> implements PCA on high-variance voxels <span class="cite">(Behzadi et al. 2007)</span> - have to specify number of components</p>
+
+<pre class = 'prettyprint lang-r'>compCorNuisanceVariables &lt;- compcor(
+  moco_img, 
+  maskImage, 
+  ncompcor = 6)
+nuisanceVariables &lt;- cbind(
+    moco_params, 
+    compCorNuisanceVariables)</pre>
+
+</article></slide><slide class=''><hgroup><h2>Nuisance Regression and Filtering</h2></hgroup><article  id="nuisance-regression-and-filtering">
+
+<p><code>lm</code> works great here (data is \(T×V\))</p>
+
+<pre class = 'prettyprint lang-r'>nuisanceVariables = scale(nuisanceVariables)
+nuisance_mod = lm(boldMatrix ~ nuisanceVariables)
+rMatrix &lt;- residuals(nuisance_mod)</pre>
+
+</article></slide><slide class=''><hgroup><h2>Filtering</h2></hgroup><article  id="filtering">
+
+<ul>
+<li><code>frequencyFilterfMRI</code> calls <code>mFilter::cffilter</code></li>
+</ul>
+
+<pre class = 'prettyprint lang-r'>rMatrix &lt;- frequencyFilterfMRI(rMatrix, 
+    tr = 2, 
+    freqLo = 0.01, 
+    freqHi = 0.1, 
+    opt = &quot;trig&quot;)</pre>
+
+</article></slide><slide class=''><hgroup><h2>Smooth Image</h2></hgroup><article  id="smooth-image">
+
+<ul>
+<li><code>smoothImage</code> can take a FWHM (≈ 2 * Pixel Dimensions) to smooth</li>
+</ul>
+
+<pre class = 'prettyprint lang-r'>cleanBoldImage &lt;- matrix2timeseries(
+    boldImage, 
+    maskImage, 
+    rMatrix)
+smoothCleanBoldImage = smoothImage(
+    cleanBoldImage, 
+    sigma = c(rep(6, 3), 0),
+    FWHM = TRUE)</pre>
+
+</article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>What Else Do We Need?</h2></hgroup><article  id="what-else-do-we-need">
+
+</article></slide><slide class=''><hgroup><h2>Bibliography</h2></hgroup><article  id="bibliography" class="unnumbered">
+
+<div id="refs" class="references">
+<div id="ref-behzadi2007component">
+<p>Behzadi, Yashar, Khaled Restom, Joy Liau, and Thomas T Liu. 2007. “A Component Based Noise Correction Method (CompCor) for BOLD and Perfusion Based FMRI.” <em>Neuroimage</em> 37 (1). Elsevier: 90–101.</p></div></div></article></slide>
+
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<script src="fmri_proc_files/ioslides-13.5.1/js/modernizr.custom.45394.js"></script>
+<script src="fmri_proc_files/ioslides-13.5.1/js/prettify/prettify.js"></script>
+<script src="fmri_proc_files/ioslides-13.5.1/js/prettify/lang-r.js"></script>
+<script src="fmri_proc_files/ioslides-13.5.1/js/prettify/lang-yaml.js"></script>
+<script src="fmri_proc_files/ioslides-13.5.1/js/hammer.js"></script>
+<script src="fmri_proc_files/ioslides-13.5.1/js/slide-controller.js"></script>
+<script src="fmri_proc_files/ioslides-13.5.1/js/slide-deck.js"></script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+<!-- map slide visiblity events into shiny -->
+<script>
+  (function() {
+    if (window.jQuery) {
+       window.jQuery(document).on('slideleave', function(e) {
+         window.jQuery(e.target).trigger('hidden');
+      });
+       window.jQuery(document).on('slideenter', function(e) {
+         window.jQuery(e.target).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>
