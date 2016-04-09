@@ -83,7 +83,7 @@ knit_hooks$set(document = hook2)
 
 ## Why R?
 
-<div style='font-size: 26pt;'>
+<div style='font-size: 28pt;'>
 
 - Statistical tools are state of the art
     - SAS/Stata do not currently support imaging 
