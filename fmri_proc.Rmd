@@ -474,6 +474,8 @@ legend(x = 10, y = mult * 1.4,
 # par(mfrow = c(1,1))
 ```
 
+
+
 ## Nuisance Variables: CompCor
 
 `compcor`: PCA on high-variance voxels [@behzadi2007component]
