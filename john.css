@@ -164,3 +164,8 @@ pre {
   -webkit-columns: 2 50%; /* chrome, safari */
   -moz-columns: 2 50%;    /* firefox */
 }
+
+
+.codefont pre {
+    font-size: 25px;
+}

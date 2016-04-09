@@ -138,7 +138,7 @@
 
 </article></slide><slide class=''><hgroup><h2>Why R?</h2></hgroup><article  id="why-r">
 
-<div style="font-size: 25pt;">
+<div style="font-size: 26pt;">
 <ul>
 <li>Statistical tools are state of the art
 
@@ -155,9 +155,10 @@
 <li>Shiny</li>
 </ul></div>
 
-</article></slide><slide class=''><hgroup><h2>Data used from NITRC</h2></hgroup><article  id="data-used-from-nitrc">
+</article></slide><slide class=''><hgroup><h2>Data used from NITRC</h2></hgroup><article  id="data-used-from-nitrc" class="codefont">
 
-<p>Multi-sequence MRI dataset from Kirby 21 (KKI2009-19):</p>
+<div style="font-size: 28pt;">
+<p>Multi-sequence MRI dataset from Kirby 21 (<a href='https://www.nitrc.org/projects/multimodal' title=''>https://www.nitrc.org/projects/multimodal</a>):</p>
 
 <ul>
 <li>Using 2 MRI sequences: <strong>fMRI, MPRAGE</strong></li>
@@ -165,11 +166,7 @@
 
 <pre class = 'prettyprint lang-r'>files
                 anatomical                 functional 
-&quot;KKI2009-19-MPRAGE.nii.gz&quot;   &quot;KKI2009-19-fMRI.nii.gz&quot; </pre>
-
-<ul>
-<li>Data from <a href='https://www.nitrc.org/projects/multimodal' title=''>https://www.nitrc.org/projects/multimodal</a></li>
-</ul>
+&quot;KKI2009-19-MPRAGE.nii.gz&quot;   &quot;KKI2009-19-fMRI.nii.gz&quot; </pre></div>
 
 </article></slide><slide class=''><hgroup><h2>oro.nifti (Brandon Whitcher, CRAN)</h2></hgroup><article  id="oro.nifti-brandon-whitcher-cran">
 
@@ -232,13 +229,12 @@
 <li><code>fslsmooth</code> - turn that noise down</li>
 </ul></div>
 
-</article></slide><slide class=''><hgroup><h2>Basics: The <code>nifti</code> object</h2></hgroup><article  id="basics-the-nifti-object">
+</article></slide><slide class=''><hgroup><h2>The <code>nifti</code> object</h2></hgroup><article  id="the-nifti-object">
 
 <p>fslr: <code>readnii</code> wraps <code>oro.nifti::readNIfTI</code>:</p>
 
 <pre class = 'prettyprint lang-r'>library(fslr)
-img = readnii(files[&quot;functional&quot;])
-print(img)</pre>
+img = readnii(files[&quot;functional&quot;]);  print(img)</pre>
 
 <pre >NIfTI-1 format
   Type            : nifti
@@ -263,7 +259,10 @@ img = subset_4d(img, first_scan:ntim(img))
 aimg = fsl_slicetimer(functional, 
                       tr = 2, 
                       indexing = &quot;up&quot;,
-                      acq_order = &quot;contiguous&quot;)</pre>
+                      acq_order = &quot;contiguous&quot;)
+print(dim(aimg))</pre>
+
+<pre >[1]  80  80  37 205</pre>
 
 </article></slide><slide class=''><hgroup><h2>Orthographic View</h2></hgroup><article  id="orthographic-view">
 
@@ -325,14 +324,10 @@ ortho2(median_image)</pre>
                         moreaccurate = 1,
                         txtype = &quot;Rigid&quot;)</pre>
 
-<pre >     MOCOparam1   MOCOparam2   MOCOparam3 MOCOparam4 MOCOparam5
-1 -0.0002406909 6.624364e-05 0.0002286185 0.01086437  0.2225053
-2 -0.0001997646 9.491269e-05 0.0001630486 0.01815357  0.1724203
-3 -0.0002247564 4.113386e-05 0.0002146632 0.02564044  0.2303171
-    MOCOparam6
-1 -0.035629221
-2 -0.047818027
-3 -0.006071109</pre>
+<pre >  MOCOparam1 MOCOparam2 MOCOparam3 MOCOparam4 MOCOparam5 MOCOparam6
+1     -2e-04      1e-04      2e-04     0.0109     0.2225    -0.0356
+2     -2e-04      1e-04      2e-04     0.0182     0.1724    -0.0478
+3     -2e-04      0e+00      2e-04     0.0256     0.2303    -0.0061</pre>
 
 </article></slide><slide class=''><hgroup><h2>Let&#39;s Make a Matrix!</h2></hgroup><article  id="lets-make-a-matrix">
 

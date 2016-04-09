@@ -83,7 +83,7 @@ knit_hooks$set(document = hook2)
 
 ## Why R?
 
-<div style='font-size: 25pt;'>
+<div style='font-size: 26pt;'>
 
 - Statistical tools are state of the art
     - SAS/Stata do not currently support imaging 
@@ -95,13 +95,14 @@ knit_hooks$set(document = hook2)
 </div>
 
 
-## Data used from NITRC
+## Data used from NITRC {.codefont}
 
-Multi-sequence MRI dataset from Kirby 21 (KKI2009-19):
+<div style='font-size: 28pt;'>
+Multi-sequence MRI dataset from Kirby 21 (https://www.nitrc.org/projects/multimodal):
 
 - Using 2 MRI sequences: **fMRI, MPRAGE**
 
-```{r makefiles, echo=FALSE}
+```{r makefiles, echo=FALSE, size = "LARGE"}
 anatomical = "KKI2009-19-MPRAGE.nii.gz"
 functional = "KKI2009-19-fMRI.nii.gz"
 files = c(anatomical = anatomical,
@@ -112,8 +113,7 @@ files = c(anatomical = anatomical,
 files
 ```
 
-- Data from https://www.nitrc.org/projects/multimodal
-
+</div>
 
 ## oro.nifti (Brandon Whitcher, CRAN)
 
@@ -171,14 +171,12 @@ Requires MATLAB (installs SPM to R library)
 </div>
 
 
-## Basics: The `nifti` object
+## The `nifti` object
 
 fslr: `readnii` wraps `oro.nifti::readNIfTI`:
-
 ```{r slice_timing_show2, eval = FALSE}
 library(fslr)
-img = readnii(files["functional"])
-print(img)
+img = readnii(files["functional"]);  print(img)
 ```
 
 ```{r slice_timing_show3, echo = FALSE}
@@ -200,6 +198,7 @@ aimg = fsl_slicetimer(functional,
                       tr = 2, 
                       indexing = "up",
                       acq_order = "contiguous")
+print(dim(aimg))
 ```
 
 
@@ -236,8 +235,17 @@ if (file.exists(afilename)) {
         outfile = afilename
     )
 }
-# print(aimg)
+
 rm(list = c("aimg", "img"))
+```
+
+```{r print_daimg, message=FALSE, echo = FALSE}
+daimg = sapply(paste0("dim", 1:4), 
+               function(x) {
+                 fslval(file = afilename, keyword = x)
+               })
+daimg = as.numeric(daimg)
+print(daimg)
 ```
 
 ## Orthographic View
@@ -351,7 +359,9 @@ moco_params =
 moco_params = moco_params %>% 
     select(starts_with("MOCO"))
 nuisanceVariables = moco_params
-print(head(moco_params, 3))
+mp = round(moco_params, 4)
+print(head(mp, 3))
+rm(list = c("mp"))
 ```
 
 ## Let's Make a Matrix!
@@ -584,6 +594,12 @@ for (i in 2:n) {
 ```
 
 # What Else Do We Need?
+
+# Not covered
+
+- `fmri` package (ask Joerg)
+- `AnalyzeFMRI`
+- `cudaBayesreg`
 
 ## Bibliography
 
