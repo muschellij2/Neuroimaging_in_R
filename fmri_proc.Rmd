@@ -1,7 +1,7 @@
 ---
 title: "Processing Neuroimaging Data in R: Capabilities"
 subtitle: 'https://github.com/muschellij2/Neuroimaging_in_R'
-author: "John Muschelli http://johnmuschelli.com/Neuroimaging_in_R"
+author: "John Muschelli http://johnmuschelli.com/Neuroimaging_in_R/fmri_proc.html"
 date: "April 10, 2016"
 bibliography: "index.bib"
 output:
