@@ -86,6 +86,12 @@
         var params = []; 
         params["images"] = ["T1.nii.gz"]; 
         </script>
+  <script src="fmri_proc_files/htmlwidgets-0.6.1/htmlwidgets.js"></script>
+  <script src="fmri_proc_files/jquery-1.11.1/jquery.min.js"></script>
+  <script src="fmri_proc_files/datatables-binding-0.1/datatables.js"></script>
+  <script src="fmri_proc_files/datatables-1.10.7/jquery.dataTables.min.js"></script>
+  <link href="fmri_proc_files/datatables-default-1.10.7/dataTables.extra.css" rel="stylesheet" />
+  <link href="fmri_proc_files/datatables-default-1.10.7/jquery.dataTables.min.css" rel="stylesheet" />
 
 </head>
 
@@ -228,6 +234,12 @@
 <li><code>flirt</code>+<code>fnirt</code> - brains look better in MNI</li>
 <li><code>fslsmooth</code> - turn that noise down</li>
 </ul></div>
+
+</article></slide><slide class=''><hgroup><h2>Number of Downloads (RStudio CRAN)</h2></hgroup><article  id="number-of-downloads-rstudio-cran">
+
+<div style="font-size: 40pt;">
+<p><div id="htmlwidget-5907" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5907">{"x":{"data":[["oro.nifti","fslr","spm12r"],[18764,6906,1020],[100,56,30]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Package\u003c/th>\n      <th>All_Time\u003c/th>\n      <th>Last_Week\u003c/th>\n    \u003c/tr>\n  \u003c/thead>\n\u003c/table>","options":{"dom":"t","autoWidth":true,"columnDefs":[{"className":"dt-center","targets":0},{"className":"dt-right","targets":[1,2]}],"order":[],"orderClasses":false,"rowCallback":"function(row, data) {\nvar value=data[0]; $(this.api().cell(row, 0).node()).css({'font-size':'25pt'});\nvar value=data[1]; $(this.api().cell(row, 1).node()).css({'font-size':'25pt'});\nvar value=data[2]; $(this.api().cell(row, 2).node()).css({'font-size':'25pt'});\n}"},"callback":null,"filter":"none"},"evals":["options.rowCallback"],"jsHooks":[]}</script></p></div>
 
 </article></slide><slide class=''><hgroup><h2>The <code>nifti</code> object</h2></hgroup><article  id="the-nifti-object">
 

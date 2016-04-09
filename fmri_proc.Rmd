@@ -31,6 +31,11 @@ library(scales)
 library(stringr)
 library(plyr)
 library(dplyr)
+if (!require(cranlogs)) {
+  library(devtools)
+  install_github("metacran/cranlogs")
+  library(cranlogs)
+}
 library(fslr)
 library(extrantsr)
 library(ANTsR)
@@ -170,6 +175,40 @@ Requires MATLAB (installs SPM to R library)
 - `flirt`+`fnirt` - brains look better in MNI
 - `fslsmooth` - turn that noise down
 
+</div>
+
+
+## Number of Downloads (RStudio CRAN)
+
+
+```{r, echo = FALSE}
+first_date = "2008-01-10"
+today = Sys.Date()
+long_today = format(Sys.time(), "%B %d, %Y")
+packs = c("fslr", "oro.nifti", "spm12r")
+last_week = cran_downloads( when = "last-week",
+                            packages = packs)
+last_week = ddply(last_week, .(package), summarise, 
+                  Last_Week = sum(count))
+dl = cran_downloads( from = first_date, to = today,
+                     packages = packs)
+dl = ddply(dl, .(package), summarise, All_Time = sum(count))
+dl = merge(dl, last_week)
+dl = arrange(dl, desc(Last_Week))
+colnames(dl)[1] = "Package"
+```
+
+<div style='font-size: 40pt;'>
+```{r dt, results = "asis", cache = FALSE, echo = FALSE}
+library(DT)
+tab = datatable(dl, filter = "none", selection = "none", rownames = FALSE,
+          options = list(dom = 't', autoWidth = TRUE,
+                         columnDefs = list(list(
+                           className = 'dt-center',
+                           targets = 0)))
+)
+formatStyle(tab, columns = colnames(dl), `font-size`='25pt')
+```
 </div>
 
 
