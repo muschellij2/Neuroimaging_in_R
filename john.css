@@ -169,3 +169,25 @@ pre {
 .codefont pre {
     font-size: 25px;
 }
+
+
+.title-slide hgroup h1 {
+  font-size: 120px;
+  line-height: 1.4;
+  letter-spacing: -3px;
+  color: #515151;
+}
+
+
+.thank-you-slide {
+  font-size: 120px;
+  color: inherit;
+}
+
+
+.auto-fadein h2 {
+  font-size: 80px;
+}
+
+
+

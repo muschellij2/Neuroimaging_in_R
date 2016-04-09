@@ -88,6 +88,8 @@ knit_hooks$set(document = hook2)
 - No
 </div>
 
+# I use R {#bigid} 
+
 ## Why R?
 
 <div style='font-size: 26pt;'>
